@@ -13,6 +13,8 @@ const lawData = {
           article: "第2条",
           title: "定義",
           summary: "「航空運送事業」＝他人の需要に応じ、航空機を使用して有償で旅客又は貨物を運送する事業。「国際航空運送事業」＝本邦内と本邦外の地点間又は本邦外の各地間で行う航空運送事業。",
+          officialText: "この法律において「航空機」とは、人が乗つて航空の用に供することができる飛行機、回転翼航空機、滑空機、飛行船その他政令で定める機器をいう。\n②　この法律において「航空業務」とは、航空機に乗り組んで行うその運航（航空機に乗り組んで行う無線設備の操作を含む。）及び整備又は改造をした航空機について行う第十九条第二項に規定する確認をいう。\n③　この法律において「航空従事者」とは、第二十二条の航空従事者技能証明を受けた者をいう。\n⑱　この法律において「航空運送事業」とは、他人の需要に応じ、航空機を使用して有償で旅客又は貨物を運送する事業をいう。\n⑲　この法律において「国際航空運送事業」とは、本邦内の地点と本邦外の地点との間又は本邦外の各地間において行う航空運送事業をいう。\n⑳　この法律において「国内定期航空運送事業」とは、本邦内の各地間に路線を定めて一定の日時により航行する航空機により行う航空運送事業をいう。\n㉑　この法律において「航空機使用事業」とは、他人の需要に応じ、航空機を使用して有償で旅客又は貨物の運送以外の行為の請負を行う事業をいう。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_2",
           keywords: ["航空運送事業", "国際航空運送事業", "有償", "旅客", "貨物"],
           relatedTo: ["law100", "law72", "law77"],
         },
@@ -22,6 +24,8 @@ const lawData = {
           article: "第28条",
           title: "業務範囲",
           summary: "技能証明（航空機に乗り組んで運航を行う者）及び第31条第1項の航空身体検査証明を有するものでなければ、業務範囲の欄に掲げる行為を行ってはならない。",
+          officialText: "別表の資格の欄に掲げる資格の技能証明（航空機に乗り組んでその運航を行う者にあつては、同表の資格の欄に掲げる資格の技能証明及び第三十一条第一項の航空身体検査証明）を有する者でなければ、同表の業務範囲の欄に掲げる行為を行つてはならない。ただし、定期運送用操縦士、事業用操縦士、自家用操縦士、准定期運送用操縦士、一等航空士、二等航空士若しくは航空機関士の資格の技能証明を有する者が受信のみを目的とする無線設備の操作を行う場合又はこれらの技能証明を有する者で電波法第四十条第一項の無線従事者の資格を有するものが、同条第二項の規定に基づき行うことができる無線設備の操作を行う場合は、この限りでない。\n②　技能証明につき第二十五条の限定をされた航空従事者は、その限定をされた種類、等級若しくは型式の航空機又は業務の種類についてでなければ、別表の業務範囲の欄に掲げる行為を行つてはならない。\n③　前二項の規定は、国土交通省令で定める航空機に乗り組んでその操縦を行う者及び国土交通大臣の許可を受けて、試験飛行等のため航空機に乗り組んでその運航を行う者については、適用しない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_28",
           keywords: ["技能証明", "航空身体検査証明", "業務範囲"],
           relatedTo: ["law29", "law31", "law67", "law149"],
         },
@@ -31,6 +35,8 @@ const lawData = {
           article: "第29条",
           title: "技能証明の試験",
           summary: "国土交通大臣は技能証明のため試験を行う。試験は学科試験及び実地試験。学科試験合格者でなければ実地試験を受けられない。指定養成施設修了者は試験の全部又は一部を免除可。",
+          officialText: "国土交通大臣は、技能証明を行う場合には、申請者が、その申請に係る資格の技能証明を有する航空従事者として航空業務に従事するのに必要な知識及び能力を有するかどうかを判定するために、試験を行わなければならない。\n②　試験は、学科試験及び実地試験とする。\n③　学科試験に合格した者でなければ、実地試験を受けることができない。\n④　国土交通大臣は、外国政府の授与した航空業務の技能に係る資格証書を有する者について技能証明を行う場合には、前三項の規定にかかわらず、国土交通省令で定めるところにより、試験の全部又は一部を行わないことができる。独立行政法人航空大学校又は国土交通大臣が申請により指定した航空従事者の養成施設の課程を修了した者についても、同様とする。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_29",
           keywords: ["学科試験", "実地試験", "技能証明", "指定養成施設"],
           relatedTo: ["law28", "law72"],
         },
@@ -40,6 +46,8 @@ const lawData = {
           article: "第31条第1項",
           title: "航空身体検査証明",
           summary: "航空業務に従事するには航空身体検査証明が必要。身体検査に適合の状態での受審が必要であり、不適合の状態では技能審査を受けることが出来ない。",
+          officialText: "国土交通大臣又は指定航空身体検査医（申請により国土交通大臣が指定した国土交通省令で定める要件を備える医師をいう。以下同じ。）は、申請により、技能証明を有する者で航空機に乗り組んでその運航を行なおうとするものについて、航空身体検査証明を行なう。\n②　航空身体検査証明は、申請者に航空身体検査証明書を交付することによつて行なう。\n③　国土交通大臣又は指定航空身体検査医は、第一項の申請があつた場合において、申請者がその有する技能証明の資格に係る国土交通省令で定める身体検査基準に適合すると認めるときは、航空身体検査証明をしなければならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_31",
           keywords: ["航空身体検査証明", "身体検査", "乗員健康管理医"],
           relatedTo: ["law28", "law67"],
         },
@@ -49,6 +57,8 @@ const lawData = {
           article: "第67条",
           title: "携帯する書類",
           summary: "航空従事者は航空業務を行う場合、技能証明書を携帯しなければならない。航空機に乗り組む場合は航空身体検査証明書も携帯。",
+          officialText: "航空従事者は、その航空業務を行う場合には、技能証明書を携帯しなければならない。\n②　航空従事者は、航空機に乗り組んでその航空業務を行う場合には、技能証明書の外、航空身体検査証明書を携帯しなければならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_67",
           keywords: ["技能証明書", "航空身体検査証明書", "携帯"],
           relatedTo: ["law28", "law31", "om5710"],
         },
@@ -58,6 +68,8 @@ const lawData = {
           article: "第72条第1項",
           title: "機長の認定",
           summary: "国土交通大臣による知識及び能力の認定を受けなければ、航空運送事業の用に供する航空機には機長として乗り組んではならない。",
+          officialText: "航空運送事業の用に供する国土交通省令で定める航空機には、航空機の機長として必要な国土交通省令で定める知識及び能力を有することについて国土交通大臣の認定を受けた者でなければ、機長として乗り組んではならない。\n②　国土交通大臣は、前項の認定を受けた者が同項の知識及び能力を有するかどうかを定期に審査をしなければならない。\n③　国土交通大臣は、必要があると認めるときは、第一項の認定を受けた者が同項の知識及び能力を有するかどうかを臨時に審査をしなければならない。\n④　第一項の認定を受けた者が、第二項の審査を受けなかつたとき、前項の審査を拒否したとき、又は第二項若しくは前項の審査に合格しなかつたときは、当該認定は、その効力を失うものとする。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_72",
           keywords: ["機長認定", "知識及び能力", "航空運送事業"],
           relatedTo: ["law2", "law29", "rule163"],
         },
@@ -67,6 +79,8 @@ const lawData = {
           article: "第149条",
           title: "罰則",
           summary: "業務範囲を超えて操縦を行った者等は、1年以下の懲役又は30万円以下の罰金。航空従事者への罰としては最も重い。偽りの手段で航空身体検査証明書の交付を受けた者も同様。",
+          officialText: "次の各号のいずれかに該当する者は、一年以下の拘禁刑又は三十万円以下の罰金に処する。\n一　第二十八条第一項又は第二項の規定に違反して、別表の業務範囲の欄に掲げる行為を行つた者\n二　偽りその他不正の手段により航空身体検査証明書の交付を受けた者",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_149",
           keywords: ["懲役1年", "罰金30万円", "業務範囲違反", "最重罰"],
           relatedTo: ["law28"],
         },
@@ -83,6 +97,8 @@ const lawData = {
           article: "第73条",
           title: "機長の指揮監督権",
           summary: "機長は、当該航空機に乗り組んでその職務を行う者を指揮監督する。航空法上の「指揮」という文言はこれと施行規則163条の2点のみ。",
+          officialText: "機長（機長に事故があるときは、機長に代わつてその職務を行なうべきものとされている者。以下同じ。）は、当該航空機に乗り組んでその職務を行う者を指揮監督する。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_73",
           keywords: ["指揮監督", "乗組員", "職務"],
           relatedTo: ["rule163", "law73_4", "law74"],
         },
@@ -92,6 +108,8 @@ const lawData = {
           article: "第71条の2",
           title: "見張りの義務",
           summary: "航空機の操縦を行っている者の見張り義務。定期運送用操縦士に限らず、航空機の操縦を行っている者が対象。",
+          officialText: "航空機の操縦を行なつている者（航空機の操縦の練習をし又は計器飛行等の練習をするためその操縦を行なつている場合で、その練習を監督する者が同乗しているときは、その者）は、航空機の航行中は、第九十六条第一項の規定による国土交通大臣の指示に従つている航行であるとないとにかかわらず、当該航空機外の物件を視認できない気象状態の下にある場合を除き、他の航空機その他の物件と衝突しないように見張りをしなければならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_71_2",
           keywords: ["見張り義務", "操縦者"],
           relatedTo: ["law76"],
         },
@@ -101,6 +119,8 @@ const lawData = {
           article: "第73条の2",
           title: "出発前の確認",
           summary: "機長は、国土交通省令で定めるところにより、出発前に航空機の整備状況、気象情報、航空情報、燃料・オイル搭載量、重量・重心位置等を確認しなければならない。",
+          officialText: "機長は、国土交通省令で定めるところにより、航空機が航行に支障がないことその他運航に必要な準備が整つていることを確認した後でなければ、航空機を出発させてはならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_73_2",
           keywords: ["出発前確認", "整備状況", "気象情報", "航空情報", "燃料", "重量・重心位置"],
           relatedTo: ["law73", "law99", "rule175", "om2_1_3_10"],
         },
@@ -110,6 +130,8 @@ const lawData = {
           article: "第73条の4",
           title: "安全阻害行為等の措置",
           summary: "機長は安全阻害行為等を抑止するための措置をとる権限があり、「拘束」したり「降機」させることができる。禁止命令対象8行為に対しては行為を止めるよう「命令」できる。",
+          officialText: "機長は、航空機内にある者が、離陸のため当該航空機のすべての乗降口が閉ざされた時から着陸の後降機のためこれらの乗降口のうちいずれかが開かれる時までに、安全阻害行為等をし、又はしようとしていると信ずるに足りる相当な理由があるときは、当該航空機の安全の保持、当該航空機内にあるその者以外の者若しくは財産の保護又は当該航空機内の秩序若しくは規律の維持のために必要な限度で、その者に対し拘束その他安全阻害行為等を抑止するための措置（第五項の規定による命令を除く。）をとり、又はその者を降機させることができる。\n②　機長は、前項の規定に基づき拘束している場合において、航空機を着陸させたときは、拘束されている者が拘束されたまま引き続き搭乗することに同意する場合及びその者を降機させないことについてやむを得ない事由がある場合を除き、その者を引き続き拘束したまま当該航空機を離陸させてはならない。\n③　航空機内にある者は、機長の要請又は承認に基づき、機長が第一項の措置をとることに対し必要な援助を行うことができる。\n④　機長は、航空機を着陸させる場合において、第一項の規定に基づき拘束している者があるとき、又は同項の規定に基づき降機させようとする者があるときは、できる限り着陸前に、拘束又は降機の理由を示してその旨を着陸地の最寄りの航空交通管制機関に連絡しなければならない。\n⑤　機長は、航空機内にある者が、安全阻害行為等のうち、乗降口又は非常口の扉の開閉装置を正当な理由なく操作する行為、便所において喫煙する行為、航空機に乗り組んでその職務を行う者の職務の執行を妨げる行為その他の行為であつて、当該航空機の安全の保持、当該航空機内にあるその者以外の者若しくは財産の保護又は当該航空機内の秩序若しくは規律の維持のために特に禁止すべき行為として国土交通省令で定めるものをしたときは、その者に対し、国土交通省令で定めるところにより、当該行為を反復し、又は継続してはならない旨の命令をすることができる。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_73_4",
           keywords: ["安全阻害行為", "拘束", "降機", "命令", "禁止命令"],
           relatedTo: ["law73", "law74"],
         },
@@ -119,6 +141,8 @@ const lawData = {
           article: "第74条",
           title: "旅客への命令権",
           summary: "機長は、航空機又は旅客の危難が生じた場合又は危難が生ずるおそれがあると認める場合は、旅客に対し避難の方法その他安全のため必要な事項について命令できる。SBS点灯も法的にはこの条文に基づく命令。",
+          officialText: "機長は、航空機又は旅客の危難が生じた場合又は危難が生ずるおそれがあると認める場合は、航空機内にある旅客に対し、避難の方法その他安全のため必要な事項（機長が前条第一項の措置をとることに対する必要な援助を除く。）について命令をすることができる。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_74",
           keywords: ["旅客命令権", "危難", "避難", "Seat Belt Sign"],
           relatedTo: ["law73", "law73_4"],
         },
@@ -128,6 +152,8 @@ const lawData = {
           article: "第76条",
           title: "報告の義務",
           summary: "機長の「報告の義務」。航空法に明記されている「義務」は、見張り義務（第71条の2）と報告の義務（第76条）の2つ。報告の義務は機長が対象。",
+          officialText: "機長は、次に掲げる事故が発生した場合には、国土交通省令で定めるところにより国土交通大臣にその旨を報告しなければならない。ただし、機長が報告することができないときは、当該航空機の使用者が報告しなければならない。\n一　航空機の墜落、衝突又は火災\n二　航空機による人の死傷又は物件の損壊\n三　航空機内にある者の死亡（国土交通省令で定めるものを除く。）又は行方不明\n四　他の航空機との接触\n五　その他国土交通省令で定める航空機に関する事故\n②　機長は、他の航空機について前項第一号の事故が発生したことを知つたときは、無線電信又は無線電話により知つたときを除いて、国土交通省令で定めるところにより国土交通大臣にその旨を報告しなければならない。\n③　機長は、飛行中航空保安施設の機能の障害その他の航空機の航行の安全に影響を及ぼすおそれがあると認められる国土交通省令で定める事態が発生したことを知つたときは、他からの通報により知つたときを除いて、国土交通省令で定めるところにより国土交通大臣にその旨を報告しなければならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_76",
           keywords: ["報告義務", "機長"],
           relatedTo: ["law71_2"],
         },
@@ -137,6 +163,8 @@ const lawData = {
           article: "第77条",
           title: "運航管理者",
           summary: "航空運送事業の用に供する航空機は、運航管理者の承認を受けなければ出発し又は飛行計画を変更してはならない。出発の可否は機長が決めるが、運航管理者の承認も必要。",
+          officialText: "航空運送事業の用に供する国土交通省令で定める航空機は、その機長が、第百二条第一項の本邦航空運送事業者の置く運航管理者の承認を受けなければ、出発し、又はその飛行計画を変更してはならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_77",
           keywords: ["運航管理者", "承認", "出発", "飛行計画変更"],
           relatedTo: ["law2", "law73_2", "law100"],
         },
@@ -153,6 +181,8 @@ const lawData = {
           article: "第86条の2",
           title: "危険物の取扱い",
           summary: "航空運送事業者は危険物の輸送・持ち込みを拒絶し、取卸しを要求できる。自ら取り卸せるのは託送人又は所持人がその場に居合わせない場合に限る。国土交通大臣は航空運送事業者に措置を命ずることができる。",
+          officialText: "航空運送事業を経営する者は、貨物若しくは手荷物又は旅客の携行品その他航空機内に持ち込まれ若しくは持ち込まれようとしている物件について、形状、重量その他の事情により前条第一項の物件であることを疑うに足りる相当な理由がある場合は、当該物件の輸送若しくは航空機内への持ち込みを拒絶し、託送人若しくは所持人に対し当該物件の取卸しを要求し、又は自ら当該物件を取り卸すことができる。但し、自ら物件を取り卸すことができるのは、当該物件の託送人又は所持人がその場に居合わせない場合に限る。\n②　国土交通大臣は、航空の安全を確保するため特に必要があると認めるときは、航空運送事業を経営する者に対し、前項の規定による措置を講ずべきことを命ずることができる。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_86_2",
           keywords: ["危険物", "輸送拒絶", "取卸し", "持ち込み拒絶"],
           relatedTo: ["law73_4"],
         },
@@ -162,6 +192,8 @@ const lawData = {
           article: "第99条",
           title: "航空情報の提供",
           summary: "国土交通大臣が提供する航空情報。普段確認しているNOTAMと法的に要求される航空情報の確認がどのような関係にあるか理解が必要。",
+          officialText: "国土交通大臣は、国土交通省令で定めるところにより、航空機乗組員に対し、航空機の運航のため必要な情報を提供しなければならない。\n②　航空機乗組員は、その航空業務を行うに当たつては、前項の規定により提供される情報を利用してこれを行うよう努めなければならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_99",
           keywords: ["航空情報", "NOTAM", "国土交通大臣"],
           relatedTo: ["law73_2", "aip"],
         },
@@ -171,6 +203,8 @@ const lawData = {
           article: "第100条",
           title: "航空運送事業の許可",
           summary: "航空機に有償で旅客や貨物を載せる航空会社を経営しようとする場合、事業開始の前に国土交通大臣の許可を受けなければならない。",
+          officialText: "航空運送事業を経営しようとする者は、国土交通大臣の許可を受けなければならない。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327AC0000000231#Mp-At_100",
           keywords: ["事業許可", "国土交通大臣"],
           relatedTo: ["law2", "law77"],
         },
@@ -187,6 +221,7 @@ const lawData = {
           article: "別表第二",
           title: "飛行時間の定義",
           summary: "定期運送用操縦士の資格に必要な飛行時間の定義。飛行日誌記入要領に基づき記録。",
+          officialText: null,
           keywords: ["飛行時間", "飛行日誌"],
           relatedTo: ["rule44"],
         },
@@ -196,6 +231,8 @@ const lawData = {
           article: "第44条",
           title: "飛行日誌の証明方法",
           summary: "飛行記録は航空機の種類ごとに飛行日誌を別にして記録。青又は黒のインク又はボールペンを使用。修正液は使用不可。副操縦士は機長の証明を受ける。",
+          officialText: "第四十二条第四項及び前条第一項の飛行経歴その他の経歴は、次に掲げる方法により証明されたものでなければならない。ただし、法の施行前のものについては、この限りでない。\n一　技能証明を有する者のその資格に係る飛行経歴にあつては、一飛行の終了ごとに当該機長が証明をしたもの\n二　法第三十五条第一項各号に掲げる操縦の練習のために行う操縦に係る飛行経歴にあつては、そのつどその監督者の証明したもの\n三　前二号に掲げるもの以外のものにあつては、そのつどその使用者、指導者その他これに準ずる者の証明したもの",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327M50000800056#Mp-At_44",
           keywords: ["飛行日誌", "青又は黒", "修正液不可", "機長証明"],
           relatedTo: ["rule_bt2"],
         },
@@ -205,6 +242,8 @@ const lawData = {
           article: "第163条第2項",
           title: "機長の知識及び能力",
           summary: "法第72条第1項の国土交通省令で定める知識及び能力。「ハ」＝航空機乗組員及び客室乗務員に対する指揮監督。",
+          officialText: "法第七十二条第一項の国土交通省令で定める知識及び能力は、次に掲げる事項に関するものとする。\n一　航空機の運航に関する次の事項\n　イ　出発前の確認\n　ロ　航空機の出発及び飛行計画の変更に係る運航管理者の承認\n　ハ　航空機乗組員及び客室乗務員に対する指揮監督\n　ニ　安全阻害行為等の抑止の措置、危難の場合の措置その他の航空機の運航における安全管理\n二　通常状態及び異常状態における航空機の操作及び措置",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327M50000800056#Mp-At_163",
           keywords: ["知識及び能力", "指揮監督", "客室乗務員"],
           relatedTo: ["law72", "law73"],
         },
@@ -212,10 +251,12 @@ const lawData = {
           id: "rule175",
           law: "航空法施行規則",
           article: "第164条の16",
-          title: "燃料搭載基準",
-          summary: "タービン発動機装備の飛行機でIFRにより飛行し代替空港を飛行計画に表示するもの：着陸地まで+代替空港まで+上空450mで30分待機+不測の事態の燃料。発動機不作動/与圧喪失の場合は15分待機。",
-          keywords: ["燃料搭載", "450m", "30分", "15分", "代替空港", "不測の事態"],
-          relatedTo: ["law73_2"],
+          title: "安全阻害行為等の禁止（禁止命令対象8行為）",
+          summary: "法第73条の4第5項の国土交通省令で定める安全阻害行為等。乗降口の不正操作、便所での喫煙、職務執行妨害、電子機器の不正使用、安全バンド不装着、座席背当等の不戻し、手荷物の不適切配置、非常用装置の不正操作の8行為。",
+          officialText: "法第七十三条の四第五項の国土交通省令で定める安全阻害行為等は、次に掲げるものとする。\n一　乗降口又は非常口の扉の開閉装置を正当な理由なく操作する行為\n二　便所において喫煙する行為\n三　航空機に乗り組んでその職務を行う者の職務の執行を妨げる行為であつて、当該航空機の安全の保持、当該航空機内にあるその者以外の者若しくは財産の保護又は当該航空機内の秩序若しくは規律の維持に支障を及ぼすおそれのあるもの\n四　航空機の運航の安全に支障を及ぼすおそれがある携帯電話その他の電子機器であつて国土交通大臣が告示で定めるものを正当な理由なく作動させる行為\n五　離着陸時その他機長が安全バンドの装着を指示した場合において、安全バンドを正当な理由なく装着しない行為\n六　離着陸時において、座席の背当、テーブル、又はフットレストを正当な理由なく所定の位置に戻さない行為\n七　手荷物を通路その他非常時における脱出の妨げとなるおそれがある場所に正当な理由なく置く行為\n八　非常用の装置又は器具であつて国土交通大臣が告示で定めるものを正当な理由なく操作し、若しくは移動させ、又はその機能を損なう行為",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327M50000800056#Mp-At_164_16",
+          keywords: ["禁止命令対象8行為", "安全阻害行為", "喫煙", "電子機器", "安全バンド"],
+          relatedTo: ["law73_4"],
         },
         {
           id: "rule189",
@@ -223,6 +264,8 @@ const lawData = {
           article: "第189条",
           title: "空港等付近の航行方法",
           summary: "計器飛行方式により着陸しようとする場合の復行条件：①進入限界高度より高い特定地点で気象条件未満、②進入限界高度以下で目視物標の視認・識別による位置確認不能。",
+          officialText: "航空機は、空港等及びその周辺において、次に掲げる基準に従つて航行しなければならない。\n一　計器飛行方式による進入の方式その他当該空港等について定められた飛行の方式に従うこと。\n二　計器飛行方式により離陸しようとする場合であつて空港等における気象状態が離陸することができる最低の気象条件未満であるときは、離陸しないこと。\n三　計器飛行方式により着陸しようとする場合であつて次に掲げるときは、着陸のための進入を継続しないこと。\n　イ　進入限界高度よりも高い高度の特定の地点を通過する時点において空港等における気象状態が当該空港等への着陸のための進入を継続することができる最低の気象条件未満であるとき。\n　ロ　進入限界高度以下の高度において目視物標を引き続き視認かつ識別することによる当該航空機の位置の確認ができなくなつたとき。\n四　他の航空機に続いて離陸しようとする場合には、その航空機が離陸して着陸帯の末端を通過する前に、離陸のための滑走を始めないこと。\n五　他の航空機に続いて着陸しようとする場合には、その航空機が着陸して着陸帯の外に出る前に、着陸のために当該空港等の区域内に進入しないこと。",
+          eGovUrl: "https://laws.e-gov.go.jp/law/327M50000800056#Mp-At_189",
           keywords: ["復行", "進入限界高度", "目視物標", "気象条件", "ILS"],
           relatedTo: ["law73_2"],
         },
@@ -239,6 +282,7 @@ const lawData = {
           article: "GEN 1.5",
           title: "RNAV航行の規定",
           summary: "航法精度が指定された経路又は空域におけるRNAV航行には国土交通大臣の許可が必要。RNP AR APCHは方式毎に許可。RNP10は広域航法システム2式が必要。",
+          officialText: null,
           keywords: ["RNAV", "RNP AR APCH", "RNP10", "広域航法システム", "許可"],
           relatedTo: ["law99"],
         },
@@ -248,6 +292,7 @@ const lawData = {
           article: "11-20",
           title: "航空情報サーキュラー（AIC）",
           summary: "運航の安全、飛行方法・技術、行政又は法律上の事項についての説明的、助言的性格の情報。暦年一連番号、チェックリスト年1回発行。",
+          officialText: null,
           keywords: ["AIC", "説明的", "助言的", "年1回", "チェックリスト"],
           relatedTo: ["law99"],
         },
@@ -264,6 +309,7 @@ const lawData = {
           article: "9.8",
           title: "飛行規程の代用",
           summary: "JALの航空機には飛行規程は搭載されていない。運航規程第3巻とAOM、MEL/CDL Manualをもって代用。",
+          officialText: null,
           keywords: ["飛行規程代用", "運航規程第3巻", "AOM", "MEL/CDL"],
           relatedTo: ["law73_2"],
         },
@@ -273,6 +319,7 @@ const lawData = {
           article: "2.1.3.10",
           title: "機体の整備状況の確認",
           summary: "運航乗務員は①確認主任者からBriefingを受ける、②機体の外部点検、③搭載用航空日誌等の整備記録を点検する。",
+          officialText: null,
           keywords: ["整備状況", "外部点検", "確認主任者", "Briefing"],
           relatedTo: ["law73_2"],
         },
@@ -282,6 +329,7 @@ const lawData = {
           article: "5.7.10",
           title: "乗務に必要な携帯品",
           summary: "航空法第67条の技能証明書・航空身体検査証明書に加え、社内で定める携帯品。",
+          officialText: null,
           keywords: ["携帯品", "技能証明書"],
           relatedTo: ["law67"],
         },
@@ -291,6 +339,7 @@ const lawData = {
           article: "2-II, S-5-13",
           title: "Multi-Crew Co-operation (MCC)",
           summary: "PICはPF/PMにかかわらず運航全般のマネジメント及びチームによる意思決定を遂行。PFとPMの業務を明確にし、PFが操縦操作に集中できるよう業務配分。常に相互モニタリング。",
+          officialText: null,
           keywords: ["MCC", "PIC", "PF", "PM", "チーム意思決定", "モニタリング"],
           relatedTo: ["law73", "rule163"],
         },
@@ -308,6 +357,7 @@ export default function LawRelationshipMap() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState("map");
+  const [detailTab, setDetailTab] = useState("summary");
 
   const filtered = useMemo(() => {
     let items = allArticles;
@@ -318,7 +368,8 @@ export default function LawRelationshipMap() {
         a.title.toLowerCase().includes(t) ||
         a.article.toLowerCase().includes(t) ||
         a.summary.toLowerCase().includes(t) ||
-        a.keywords.some(k => k.toLowerCase().includes(t))
+        a.keywords.some(k => k.toLowerCase().includes(t)) ||
+        (a.officialText && a.officialText.toLowerCase().includes(t))
       );
     }
     return items;
@@ -411,6 +462,18 @@ export default function LawRelationshipMap() {
       padding: 24,
       marginBottom: 20,
     },
+    tabBtn: (active) => ({
+      padding: "6px 16px",
+      borderRadius: 6,
+      border: "none",
+      background: active ? "rgba(96,165,250,0.15)" : "transparent",
+      color: active ? "#60a5fa" : "#64748b",
+      cursor: "pointer",
+      fontSize: 13,
+      fontWeight: 700,
+      fontFamily: "inherit",
+      transition: "all 0.15s",
+    }),
   };
 
   return (
@@ -428,7 +491,7 @@ export default function LawRelationshipMap() {
                 <button key={m} onClick={() => setViewMode(m)} style={{
                   ...s.catBtn(viewMode === m, "#60a5fa"),
                   fontSize: 11,
-                }}>{m === "map" ? "マップ" : "ツリー"}</button>
+                }}>{ m === "map" ? "マップ" : "ツリー"}</button>
               ))}
             </div>
           </div>
@@ -475,9 +538,73 @@ export default function LawRelationshipMap() {
               }}>✕</button>
             </div>
 
-            <p style={{ fontSize: 14, lineHeight: 1.9, color: "#94a3b8", marginBottom: 16 }}>
-              {selectedArt.summary}
-            </p>
+            {/* Tab Switcher */}
+            <div style={{
+              display: "flex", gap: 4, marginBottom: 16, padding: 3,
+              background: "rgba(255,255,255,0.03)", borderRadius: 8,
+              border: "1px solid rgba(255,255,255,0.06)", width: "fit-content",
+            }}>
+              <button onClick={() => setDetailTab("summary")} style={s.tabBtn(detailTab === "summary")}>
+                要約
+              </button>
+              <button
+                onClick={() => selectedArt.officialText && setDetailTab("official")}
+                style={{
+                  ...s.tabBtn(detailTab === "official"),
+                  opacity: selectedArt.officialText ? 1 : 0.35,
+                  cursor: selectedArt.officialText ? "pointer" : "not-allowed",
+                }}
+              >
+                条文
+              </button>
+            </div>
+
+            {/* Content Area */}
+            {detailTab === "summary" ? (
+              <p style={{ fontSize: 14, lineHeight: 1.9, color: "#94a3b8", marginBottom: 16 }}>
+                {selectedArt.summary}
+              </p>
+            ) : selectedArt.officialText ? (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{
+                  fontSize: 13, lineHeight: 2.1, color: "#cbd5e1",
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 10, padding: "16px 20px",
+                  whiteSpace: "pre-wrap",
+                  fontFeatureSettings: '"palt"',
+                }}>
+                  {selectedArt.officialText}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                  <span style={{
+                    fontSize: 10, color: "#475569", fontStyle: "italic",
+                  }}>
+                    出典: e-Gov法令検索
+                  </span>
+                  {selectedArt.eGovUrl && (
+                    <a
+                      href={selectedArt.eGovUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: 10, color: "#60a5fa", textDecoration: "none",
+                        padding: "2px 8px", borderRadius: 4,
+                        border: "1px solid rgba(96,165,250,0.3)",
+                        background: "rgba(96,165,250,0.08)",
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      e-Govで確認 →
+                    </a>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p style={{ fontSize: 13, color: "#475569", fontStyle: "italic", marginBottom: 16 }}>
+                この条項のe-Gov法令検索による条文データはありません（AIP・社内規定等）。
+              </p>
+            )}
 
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
               {selectedArt.keywords.map(kw => (
@@ -496,7 +623,7 @@ export default function LawRelationshipMap() {
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {related.map(r => (
-                    <button key={r.id} onClick={() => setSelectedArticle(r.id)} style={{
+                    <button key={r.id} onClick={() => { setSelectedArticle(r.id); setDetailTab("summary"); }} style={{
                       display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
                       borderRadius: 8, border: `1px solid ${r.categoryColor}33`,
                       background: `${r.categoryColor}08`, cursor: "pointer", textAlign: "left",
@@ -510,6 +637,13 @@ export default function LawRelationshipMap() {
                         {r.law} {r.article}
                       </span>
                       <span style={{ color: "#94a3b8" }}>{r.title}</span>
+                      {r.officialText && (
+                        <span style={{
+                          fontSize: 9, padding: "1px 5px", borderRadius: 3,
+                          background: "rgba(96,165,250,0.12)", color: "#60a5fa",
+                          marginLeft: 4, fontWeight: 600,
+                        }}>条文</span>
+                      )}
                       <span style={{ marginLeft: "auto", fontSize: 16, color: "#475569" }}>→</span>
                     </button>
                   ))}
@@ -529,7 +663,7 @@ export default function LawRelationshipMap() {
               return (
                 <div
                   key={art.id}
-                  onClick={() => setSelectedArticle(isSel ? null : art.id)}
+                  onClick={() => { setSelectedArticle(isSel ? null : art.id); setDetailTab("summary"); }}
                   style={{
                     ...s.card(isSel, isRel, art.categoryColor),
                     opacity: dimmed ? 0.3 : 1,
@@ -537,7 +671,16 @@ export default function LawRelationshipMap() {
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                    <span style={s.badge(art.categoryColor)}>{art.law}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={s.badge(art.categoryColor)}>{art.law}</span>
+                      {art.officialText && (
+                        <span style={{
+                          fontSize: 9, padding: "2px 5px", borderRadius: 3,
+                          background: "rgba(96,165,250,0.12)", color: "#60a5fa",
+                          fontWeight: 600, letterSpacing: "0.02em",
+                        }}>条文</span>
+                      )}
+                    </div>
                     {isRel && !isSel && (
                       <span style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700 }}>関連</span>
                     )}
@@ -575,7 +718,7 @@ export default function LawRelationshipMap() {
             {lawData.categories
               .filter(c => !selectedCategory || c.id === selectedCategory)
               .map(cat => {
-                const catArticles = cat.articles.filter(a => 
+                const catArticles = cat.articles.filter(a =>
                   filtered.some(f => f.id === a.id)
                 );
                 if (catArticles.length === 0) return null;
@@ -599,7 +742,7 @@ export default function LawRelationshipMap() {
                         return (
                           <div
                             key={art.id}
-                            onClick={() => setSelectedArticle(isSel ? null : art.id)}
+                            onClick={() => { setSelectedArticle(isSel ? null : art.id); setDetailTab("summary"); }}
                             style={{
                               ...s.card(isSel, isRel, cat.color),
                               opacity: dimmed ? 0.25 : 1,
@@ -612,6 +755,13 @@ export default function LawRelationshipMap() {
                               <span style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0" }}>
                                 {art.title}
                               </span>
+                              {art.officialText && (
+                                <span style={{
+                                  fontSize: 9, padding: "1px 5px", borderRadius: 3,
+                                  background: "rgba(96,165,250,0.12)", color: "#60a5fa",
+                                  fontWeight: 600,
+                                }}>条文</span>
+                              )}
                               {isRel && !isSel && (
                                 <span style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700, marginLeft: "auto" }}>← 関連</span>
                               )}
@@ -626,7 +776,7 @@ export default function LawRelationshipMap() {
                                 {art.relatedTo.map(rid => {
                                   const rArt = allArticles.find(a => a.id === rid);
                                   return rArt ? (
-                                    <span key={rid} onClick={e => { e.stopPropagation(); setSelectedArticle(rid); }} style={{
+                                    <span key={rid} onClick={e => { e.stopPropagation(); setSelectedArticle(rid); setDetailTab("summary"); }} style={{
                                       fontSize: 11, padding: "3px 8px", borderRadius: 4,
                                       background: `${rArt.categoryColor}15`, color: rArt.categoryColor,
                                       border: `1px solid ${rArt.categoryColor}33`, cursor: "pointer",
@@ -665,6 +815,16 @@ export default function LawRelationshipMap() {
               <p>AIP（航空路誌）→ NOTAM → AIC</p>
               <p>飛行方式設定基準 / 管制方式基準</p>
             </div>
+          </div>
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <p style={{ fontSize: 11, color: "#475569" }}>
+              <span style={{
+                fontSize: 9, padding: "1px 5px", borderRadius: 3,
+                background: "rgba(96,165,250,0.12)", color: "#60a5fa",
+                fontWeight: 600, marginRight: 6,
+              }}>条文</span>
+              マークのある条項はe-Gov法令検索の正式条文を収録しています
+            </p>
           </div>
         </div>
       </div>
