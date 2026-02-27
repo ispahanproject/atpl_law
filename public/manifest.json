@@ -1,0 +1,25 @@
+{
+  "name": "航空法 知識整理ツール",
+  "short_name": "航空法ツール",
+  "description": "航空法条項と社内規定の紐付け・知識整理ツール",
+  "start_url": "/atpl_law/",
+  "scope": "/atpl_law/",
+  "display": "standalone",
+  "background_color": "#0b0f1a",
+  "theme_color": "#0b0f1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
