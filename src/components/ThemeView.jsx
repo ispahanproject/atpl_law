@@ -12,18 +12,33 @@ const PRESET_COLORS = [
 let _secCounter = 0;
 const tempSecId = () => `sec_${Date.now()}_${++_secCounter}`;
 
-// Helper: count all articles in a theme's sections
-const themeArticleCount = (theme) =>
-  (theme.sections || []).reduce((sum, sec) => sum + sec.articleIds.length, 0);
-
-// Helper: get all article IDs from a theme
-const themeAllArticleIds = (theme) => {
-  const ids = new Set();
+// All article IDs in a theme (direct + sections)
+const themeAllIds = (theme) => {
+  const ids = new Set(theme.articleIds || []);
   for (const sec of theme.sections || []) {
     for (const id of sec.articleIds) ids.add(id);
   }
   return ids;
 };
+
+const themeTotal = (theme) =>
+  (theme.articleIds || []).length +
+  (theme.sections || []).reduce((n, sec) => n + sec.articleIds.length, 0);
+
+// Shared article row
+function ArticleRow({ art, indent, onClick }) {
+  return (
+    <div
+      onClick={() => onClick(art.id)}
+      style={{ ...s.listRow, paddingLeft: indent, borderBottom: `1px solid ${colors.border}` }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: art.categoryColor, flexShrink: 0 }} />
+      <span style={{ fontSize: 11, fontWeight: 800, color: art.categoryColor, minWidth: 56, flexShrink: 0 }}>{art.article}</span>
+      <span style={{ fontSize: 11, fontWeight: 600, color: colors.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{art.title}</span>
+      <span style={s.badge(art.categoryColor)}>{art.law}</span>
+    </div>
+  );
+}
 
 export default function ThemeView({ onOpenDetail }) {
   const { userData, addTheme, updateTheme, deleteTheme } = useUserDataContext();
@@ -34,276 +49,135 @@ export default function ThemeView({ onOpenDetail }) {
   const [collapsedSections, setCollapsedSections] = useState(new Set());
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  // Articles not assigned to any theme
   const unassigned = useMemo(() => {
     const assigned = new Set();
-    for (const theme of themes) {
-      for (const id of themeAllArticleIds(theme)) assigned.add(id);
-    }
+    for (const theme of themes) for (const id of themeAllIds(theme)) assigned.add(id);
     return allArticles.filter(a => !assigned.has(a.id));
   }, [themes]);
 
-  const toggleCollapse = (id) => {
-    setCollapsedThemes(prev => {
-      const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
-    });
-  };
-
-  const toggleSection = (key) => {
-    setCollapsedSections(prev => {
-      const n = new Set(prev);
-      n.has(key) ? n.delete(key) : n.add(key);
-      return n;
-    });
-  };
+  const toggle = (set, setter, id) => setter(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const handleDelete = (id) => {
-    if (confirmDelete === id) {
-      deleteTheme(id);
-      setConfirmDelete(null);
-    } else {
-      setConfirmDelete(id);
-      setTimeout(() => setConfirmDelete(null), 3000);
-    }
+    if (confirmDelete === id) { deleteTheme(id); setConfirmDelete(null); }
+    else { setConfirmDelete(id); setTimeout(() => setConfirmDelete(null), 3000); }
   };
 
   return (
     <div>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span style={{ fontSize: 12, color: colors.textMuted }}>
-          {themes.length}テーマ ・ {unassigned.length}件 未分類
-        </span>
-        <button
-          onClick={() => setEditingTheme('new')}
-          style={{ ...s.btnSmall, color: colors.accent, borderColor: 'rgba(96,165,250,0.3)' }}
-        >+ 新規テーマ</button>
+        <span style={{ fontSize: 12, color: colors.textMuted }}>{themes.length}テーマ ・ {unassigned.length}件 未分類</span>
+        <button onClick={() => setEditingTheme('new')} style={{ ...s.btnSmall, color: colors.accent, borderColor: 'rgba(96,165,250,0.3)' }}>+ 新規テーマ</button>
       </div>
 
-      {/* Empty state */}
       {themes.length === 0 && (
         <div style={s.emptyState}>
           <p style={{ fontSize: 32, marginBottom: 8 }}>📂</p>
           <p style={{ marginBottom: 4 }}>テーマを作成して条文を整理しましょう</p>
-          <p style={{ fontSize: 11, color: colors.textDim }}>
-            例：「ATPL試験重点」「日常運航」「乗員管理」
-          </p>
-          <button
-            onClick={() => setEditingTheme('new')}
-            style={{ ...s.btnPrimary, marginTop: 16, fontSize: 13, padding: '8px 20px' }}
-          >テーマを作成</button>
+          <p style={{ fontSize: 11, color: colors.textDim }}>例：「ATPL試験重点」「日常運航」「乗員管理」</p>
+          <button onClick={() => setEditingTheme('new')} style={{ ...s.btnPrimary, marginTop: 16, fontSize: 13, padding: '8px 20px' }}>テーマを作成</button>
         </div>
       )}
 
-      {/* Theme boxes */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {themes.map(theme => {
           const collapsed = collapsedThemes.has(theme.id);
+          const directArts = (theme.articleIds || []).map(id => allArticles.find(a => a.id === id)).filter(Boolean);
           const sections = theme.sections || [];
-          const totalArticles = themeArticleCount(theme);
+          const total = themeTotal(theme);
+          const hasSections = sections.length > 0 && sections.some(sec => sec.articleIds.length > 0 || sec.name);
 
           return (
-            <div key={theme.id} style={{
-              borderRadius: 10, overflow: 'hidden',
-              border: `1px solid ${theme.color}30`,
-              background: colors.bgCard,
-            }}>
+            <div key={theme.id} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${theme.color}30`, background: colors.bgCard }}>
               {/* Theme header */}
               <div
-                onClick={() => toggleCollapse(theme.id)}
+                onClick={() => toggle(collapsedThemes, setCollapsedThemes, theme.id)}
                 style={{
-                  padding: '10px 12px',
-                  background: `${theme.color}0a`,
-                  borderBottom: !collapsed && totalArticles > 0 ? `1px solid ${colors.border}` : 'none',
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  cursor: 'pointer',
+                  padding: '10px 12px', background: `${theme.color}0a`,
+                  borderBottom: !collapsed && total > 0 ? `1px solid ${colors.border}` : 'none',
+                  display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
                   WebkitTapHighlightColor: 'transparent',
                 }}
               >
-                <span style={{
-                  fontSize: 10, color: colors.textDim,
-                  transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)',
-                  transition: 'transform 0.15s', display: 'inline-block',
-                }}>▼</span>
-                <span style={{
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: theme.color, flexShrink: 0,
-                }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: theme.color, flex: 1 }}>
-                  {theme.name}
-                </span>
+                <span style={{ fontSize: 10, color: colors.textDim, transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)', transition: 'transform 0.15s', display: 'inline-block' }}>▼</span>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: theme.color, flexShrink: 0 }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: theme.color, flex: 1 }}>{theme.name}</span>
                 <span style={{ fontSize: 10, color: colors.textDim, marginRight: 4 }}>
-                  {sections.length > 1 ? `${sections.length}項 ` : ''}{totalArticles}件
+                  {hasSections ? `${sections.length}項 ` : ''}{total}件
                 </span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setEditingTheme(theme); }}
-                  style={{
-                    ...s.btnSmall, fontSize: 10, padding: '2px 6px',
-                    color: colors.textDim, border: `1px solid ${colors.borderLight}`,
-                  }}
-                >編集</button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDelete(theme.id); }}
-                  style={{
-                    ...s.btnSmall, fontSize: 10, padding: '2px 6px',
-                    color: confirmDelete === theme.id ? '#ef4444' : colors.textDim,
-                    border: confirmDelete === theme.id ? '1px solid #ef444444' : `1px solid ${colors.borderLight}`,
-                  }}
-                >{confirmDelete === theme.id ? '削除?' : '×'}</button>
+                <button onClick={(e) => { e.stopPropagation(); setEditingTheme(theme); }} style={{ ...s.btnSmall, fontSize: 10, padding: '2px 6px', color: colors.textDim, border: `1px solid ${colors.borderLight}` }}>編集</button>
+                <button onClick={(e) => { e.stopPropagation(); handleDelete(theme.id); }} style={{ ...s.btnSmall, fontSize: 10, padding: '2px 6px', color: confirmDelete === theme.id ? '#ef4444' : colors.textDim, border: confirmDelete === theme.id ? '1px solid #ef444444' : `1px solid ${colors.borderLight}` }}>{confirmDelete === theme.id ? '削除?' : '×'}</button>
               </div>
 
-              {/* Sections and articles */}
-              {!collapsed && sections.map((sec, si) => {
+              {/* Direct articles (テーマ直下) */}
+              {!collapsed && directArts.map(art => (
+                <ArticleRow key={art.id} art={art} indent={12} onClick={onOpenDetail} />
+              ))}
+
+              {/* Sections */}
+              {!collapsed && sections.map(sec => {
                 const secKey = `${theme.id}_${sec.id}`;
                 const secCollapsed = collapsedSections.has(secKey);
-                const articles = sec.articleIds
-                  .map(id => allArticles.find(a => a.id === id))
-                  .filter(Boolean);
+                const arts = sec.articleIds.map(id => allArticles.find(a => a.id === id)).filter(Boolean);
+                if (!sec.name && arts.length === 0) return null;
 
                 return (
                   <div key={sec.id}>
-                    {/* Section header (only show if named or multiple sections) */}
-                    {(sec.name || sections.length > 1) && (
-                      <div
-                        onClick={() => toggleSection(secKey)}
-                        style={{
-                          padding: '6px 12px 6px 20px',
-                          background: `${theme.color}06`,
-                          borderBottom: `1px solid ${colors.border}`,
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          cursor: 'pointer',
-                          WebkitTapHighlightColor: 'transparent',
-                        }}
-                      >
-                        <span style={{
-                          fontSize: 9, color: colors.textDim,
-                          transform: secCollapsed ? 'rotate(-90deg)' : 'rotate(0)',
-                          transition: 'transform 0.15s', display: 'inline-block',
-                        }}>▼</span>
-                        <span style={{
-                          width: 4, height: 4, borderRadius: '50%',
-                          background: theme.color, opacity: 0.5, flexShrink: 0,
-                        }} />
-                        <span style={{
-                          fontSize: 11, fontWeight: 700,
-                          color: sec.name ? colors.textSub : colors.textDim,
-                          flex: 1,
-                        }}>
-                          {sec.name || '(名称なし)'}
-                        </span>
-                        <span style={{ fontSize: 9, color: colors.textDim }}>
-                          {articles.length}件
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Articles in section */}
-                    {!secCollapsed && articles.map(art => (
-                      <div
-                        key={art.id}
-                        onClick={() => onOpenDetail(art.id)}
-                        style={{
-                          ...s.listRow,
-                          paddingLeft: (sec.name || sections.length > 1) ? 32 : 12,
-                          borderBottom: `1px solid ${colors.border}`,
-                        }}
-                      >
-                        <span style={{
-                          width: 6, height: 6, borderRadius: '50%',
-                          background: art.categoryColor, flexShrink: 0,
-                        }} />
-                        <span style={{
-                          fontSize: 11, fontWeight: 800, color: art.categoryColor,
-                          minWidth: 56, flexShrink: 0,
-                        }}>{art.article}</span>
-                        <span style={{
-                          fontSize: 11, fontWeight: 600, color: colors.text,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          flex: 1,
-                        }}>{art.title}</span>
-                        <span style={s.badge(art.categoryColor)}>{art.law}</span>
-                      </div>
-                    ))}
-
-                    {!secCollapsed && articles.length === 0 && (
-                      <div style={{
-                        padding: '8px 12px 8px 32px',
-                        fontSize: 10, color: colors.textDim,
+                    <div
+                      onClick={() => toggle(collapsedSections, setCollapsedSections, secKey)}
+                      style={{
+                        padding: '6px 12px 6px 20px', background: `${theme.color}06`,
                         borderBottom: `1px solid ${colors.border}`,
-                      }}>条文なし</div>
+                        display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+                        WebkitTapHighlightColor: 'transparent',
+                      }}
+                    >
+                      <span style={{ fontSize: 9, color: colors.textDim, transform: secCollapsed ? 'rotate(-90deg)' : 'rotate(0)', transition: 'transform 0.15s', display: 'inline-block' }}>▼</span>
+                      <span style={{ width: 4, height: 4, borderRadius: '50%', background: theme.color, opacity: 0.5, flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: sec.name ? colors.textSub : colors.textDim, flex: 1 }}>{sec.name || '(名称なし)'}</span>
+                      <span style={{ fontSize: 9, color: colors.textDim }}>{arts.length}件</span>
+                    </div>
+                    {!secCollapsed && arts.map(art => (
+                      <ArticleRow key={art.id} art={art} indent={32} onClick={onOpenDetail} />
+                    ))}
+                    {!secCollapsed && arts.length === 0 && (
+                      <div style={{ padding: '8px 12px 8px 32px', fontSize: 10, color: colors.textDim, borderBottom: `1px solid ${colors.border}` }}>条文なし</div>
                     )}
                   </div>
                 );
               })}
 
-              {!collapsed && totalArticles === 0 && sections.length === 0 && (
-                <div style={{ padding: '12px', fontSize: 11, color: colors.textDim, textAlign: 'center' }}>
-                  編集から条文を追加してください
-                </div>
+              {!collapsed && total === 0 && (
+                <div style={{ padding: '12px', fontSize: 11, color: colors.textDim, textAlign: 'center' }}>編集から条文を追加してください</div>
               )}
             </div>
           );
         })}
 
-        {/* Unassigned box */}
+        {/* Unassigned */}
         {themes.length > 0 && unassigned.length > 0 && (
-          <div style={{
-            borderRadius: 10, overflow: 'hidden',
-            border: `1px solid ${colors.border}`,
-            background: colors.bgCard,
-          }}>
+          <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${colors.border}`, background: colors.bgCard }}>
             <div
-              onClick={() => toggleCollapse('__unassigned')}
+              onClick={() => toggle(collapsedThemes, setCollapsedThemes, '__unassigned')}
               style={{
-                padding: '10px 12px',
-                background: colors.bgPanel,
+                padding: '10px 12px', background: colors.bgPanel,
                 borderBottom: !collapsedThemes.has('__unassigned') ? `1px solid ${colors.border}` : 'none',
-                display: 'flex', alignItems: 'center', gap: 8,
-                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
-              <span style={{
-                fontSize: 10, color: colors.textDim,
-                transform: collapsedThemes.has('__unassigned') ? 'rotate(-90deg)' : 'rotate(0)',
-                transition: 'transform 0.15s', display: 'inline-block',
-              }}>▼</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMuted, flex: 1 }}>
-                未分類
-              </span>
-              <span style={{ fontSize: 10, color: colors.textDim }}>
-                {unassigned.length}件
-              </span>
+              <span style={{ fontSize: 10, color: colors.textDim, transform: collapsedThemes.has('__unassigned') ? 'rotate(-90deg)' : 'rotate(0)', transition: 'transform 0.15s', display: 'inline-block' }}>▼</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: colors.textMuted, flex: 1 }}>未分類</span>
+              <span style={{ fontSize: 10, color: colors.textDim }}>{unassigned.length}件</span>
             </div>
-
             {!collapsedThemes.has('__unassigned') && unassigned.map(art => (
-              <div
-                key={art.id}
-                onClick={() => onOpenDetail(art.id)}
-                style={{ ...s.listRow, borderBottom: `1px solid ${colors.border}` }}
-              >
-                <span style={{
-                  width: 6, height: 6, borderRadius: '50%',
-                  background: art.categoryColor, flexShrink: 0,
-                }} />
-                <span style={{
-                  fontSize: 11, fontWeight: 800, color: art.categoryColor,
-                  minWidth: 56, flexShrink: 0,
-                }}>{art.article}</span>
-                <span style={{
-                  fontSize: 11, fontWeight: 600, color: colors.text,
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  flex: 1,
-                }}>{art.title}</span>
-              </div>
+              <ArticleRow key={art.id} art={art} indent={12} onClick={onOpenDetail} />
             ))}
           </div>
         )}
       </div>
 
-      {/* Theme Editor BottomSheet */}
+      {/* Theme Editor */}
       {editingTheme && (
         <BottomSheet
           title={editingTheme === 'new' ? 'テーマを作成' : 'テーマを編集'}
@@ -313,11 +187,8 @@ export default function ThemeView({ onOpenDetail }) {
           <ThemeEditor
             theme={editingTheme === 'new' ? null : editingTheme}
             onSave={(data) => {
-              if (editingTheme === 'new') {
-                addTheme(data);
-              } else {
-                updateTheme(editingTheme.id, data);
-              }
+              if (editingTheme === 'new') addTheme(data);
+              else updateTheme(editingTheme.id, data);
               setEditingTheme(null);
             }}
             onClose={() => setEditingTheme(null)}
@@ -328,152 +199,169 @@ export default function ThemeView({ onOpenDetail }) {
   );
 }
 
-// ===== Theme Editor with Sections =====
+// ===== Theme Editor =====
 function ThemeEditor({ theme, onSave, onClose }) {
   const [name, setName] = useState(theme?.name || '');
   const [color, setColor] = useState(theme?.color || PRESET_COLORS[0]);
+  const [directIds, setDirectIds] = useState(new Set(theme?.articleIds || []));
   const [sections, setSections] = useState(() => {
-    if (theme?.sections?.length) {
-      return theme.sections.map(sec => ({ ...sec }));
-    }
-    return [{ id: tempSecId(), name: '', articleIds: [] }];
+    if (theme?.sections?.length) return theme.sections.map(sec => ({ ...sec }));
+    return [];
   });
-  const [activeSecIdx, setActiveSecIdx] = useState(0);
+  // 'direct' = テーマ直下, 0..n = section index
+  const [activeTarget, setActiveTarget] = useState('direct');
   const [newSecName, setNewSecName] = useState('');
   const [showAddSec, setShowAddSec] = useState(false);
 
-  // Track which articles are assigned to which section
-  const articleToSection = useMemo(() => {
+  // Map articleId → 'direct' | section index
+  const articleOwner = useMemo(() => {
     const map = {};
+    for (const id of directIds) map[id] = 'direct';
     sections.forEach((sec, idx) => {
       for (const id of sec.articleIds) map[id] = idx;
     });
     return map;
-  }, [sections]);
+  }, [directIds, sections]);
 
-  const totalArticles = sections.reduce((sum, sec) => sum + sec.articleIds.length, 0);
+  const totalArticles = directIds.size + sections.reduce((n, sec) => n + sec.articleIds.length, 0);
 
   const toggleArticle = (articleId) => {
-    setSections(prev => {
-      const next = prev.map(sec => ({ ...sec, articleIds: [...sec.articleIds] }));
-      const currentSecIdx = activeSecIdx;
-      const existingSecIdx = articleToSection[articleId];
+    const owner = articleOwner[articleId];
 
-      if (existingSecIdx === currentSecIdx) {
-        // Remove from current section
-        next[currentSecIdx].articleIds = next[currentSecIdx].articleIds.filter(id => id !== articleId);
+    if (activeTarget === 'direct') {
+      if (owner === 'direct') {
+        // Remove from direct
+        setDirectIds(prev => { const n = new Set(prev); n.delete(articleId); return n; });
       } else {
-        // Remove from other section if exists
-        if (existingSecIdx !== undefined) {
-          next[existingSecIdx].articleIds = next[existingSecIdx].articleIds.filter(id => id !== articleId);
+        // Remove from section if exists
+        if (typeof owner === 'number') {
+          setSections(prev => prev.map((sec, i) => i === owner ? { ...sec, articleIds: sec.articleIds.filter(id => id !== articleId) } : sec));
         }
-        // Add to current section
-        next[currentSecIdx].articleIds.push(articleId);
+        // Add to direct
+        setDirectIds(prev => new Set(prev).add(articleId));
       }
-      return next;
-    });
+    } else {
+      const secIdx = activeTarget;
+      if (owner === secIdx) {
+        // Remove from this section
+        setSections(prev => prev.map((sec, i) => i === secIdx ? { ...sec, articleIds: sec.articleIds.filter(id => id !== articleId) } : sec));
+      } else {
+        // Remove from wherever it currently is
+        if (owner === 'direct') {
+          setDirectIds(prev => { const n = new Set(prev); n.delete(articleId); return n; });
+        } else if (typeof owner === 'number') {
+          setSections(prev => prev.map((sec, i) => i === owner ? { ...sec, articleIds: sec.articleIds.filter(id => id !== articleId) } : sec));
+        }
+        // Add to this section
+        setSections(prev => prev.map((sec, i) => i === secIdx ? { ...sec, articleIds: [...sec.articleIds, articleId] } : sec));
+      }
+    }
   };
 
   const addSection = () => {
     if (!newSecName.trim()) return;
     setSections(prev => [...prev, { id: tempSecId(), name: newSecName.trim(), articleIds: [] }]);
-    setActiveSecIdx(sections.length);
+    setActiveTarget(sections.length);
     setNewSecName('');
     setShowAddSec(false);
   };
 
   const removeSection = (idx) => {
-    if (sections.length <= 1) return;
     setSections(prev => prev.filter((_, i) => i !== idx));
-    if (activeSecIdx >= idx && activeSecIdx > 0) {
-      setActiveSecIdx(activeSecIdx - 1);
-    }
+    setActiveTarget('direct');
   };
 
-  const renameSec = (idx, newName) => {
-    setSections(prev => prev.map((sec, i) => i === idx ? { ...sec, name: newName } : sec));
+  const renameSec = (idx, val) => {
+    setSections(prev => prev.map((sec, i) => i === idx ? { ...sec, name: val } : sec));
   };
 
   const handleSave = () => {
     if (!name.trim()) return;
-    // Clean up empty unnamed sections
     const cleanSections = sections.filter(sec => sec.name || sec.articleIds.length > 0);
     onSave({
       name: name.trim(),
       color,
-      sections: cleanSections.length > 0 ? cleanSections : sections,
+      articleIds: [...directIds],
+      sections: cleanSections,
     });
   };
+
+  // Helpers for active target label
+  const activeLabel = activeTarget === 'direct'
+    ? 'テーマ直下'
+    : (sections[activeTarget]?.name || `項目${activeTarget + 1}`);
 
   return (
     <div>
       {/* Name + Color */}
-      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', marginBottom: 14 }}>
-        <div style={{ flex: 1 }}>
-          <label style={s.label}>テーマ名</label>
-          <input
-            style={{ ...s.input, fontSize: 15, padding: '8px 12px' }}
-            placeholder="例：ATPL試験重点"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            autoFocus
-          />
-        </div>
+      <div style={{ marginBottom: 14 }}>
+        <label style={s.label}>テーマ名</label>
+        <input style={{ ...s.input, fontSize: 15, padding: '8px 12px' }} placeholder="例：ATPL試験重点" value={name} onChange={e => setName(e.target.value)} autoFocus />
       </div>
-
       <div style={{ marginBottom: 14 }}>
         <label style={s.label}>カラー</label>
         <div style={{ display: 'flex', gap: 6 }}>
           {PRESET_COLORS.map(c => (
-            <button
-              key={c}
-              onClick={() => setColor(c)}
-              style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: c, border: color === c ? '2px solid white' : '2px solid transparent',
-                cursor: 'pointer', flexShrink: 0,
-                boxShadow: color === c ? `0 0 0 2px ${c}` : 'none',
-              }}
-            />
+            <button key={c} onClick={() => setColor(c)} style={{
+              width: 28, height: 28, borderRadius: '50%', background: c,
+              border: color === c ? '2px solid white' : '2px solid transparent',
+              cursor: 'pointer', flexShrink: 0,
+              boxShadow: color === c ? `0 0 0 2px ${c}` : 'none',
+            }} />
           ))}
         </div>
       </div>
 
-      {/* Section tabs */}
+      {/* Target tabs: テーマ直下 + sections */}
       <div style={{ marginBottom: 10 }}>
-        <label style={s.label}>セクション（項目立て）</label>
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+        <label style={s.label}>紐付け先</label>
+        <div style={{
+          display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center',
+          overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+        }}>
+          {/* Direct tab */}
+          <button
+            onClick={() => setActiveTarget('direct')}
+            style={{
+              padding: '5px 10px', borderRadius: 6,
+              border: `1.5px solid ${activeTarget === 'direct' ? color : colors.borderLight}`,
+              background: activeTarget === 'direct' ? `${color}15` : 'transparent',
+              color: activeTarget === 'direct' ? color : colors.textMuted,
+              fontSize: 11, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
+              WebkitTapHighlightColor: 'transparent', flexShrink: 0,
+            }}
+          >
+            テーマ直下
+            <span style={{ fontSize: 9, marginLeft: 4, opacity: 0.6 }}>{directIds.size}</span>
+          </button>
+
+          {/* Section tabs */}
           {sections.map((sec, idx) => (
             <div key={sec.id} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
               <button
-                onClick={() => setActiveSecIdx(idx)}
+                onClick={() => setActiveTarget(idx)}
                 style={{
                   padding: '5px 10px',
-                  borderRadius: sections.length > 1 && idx === activeSecIdx ? '6px 0 0 6px' : 6,
-                  border: `1.5px solid ${idx === activeSecIdx ? color : colors.borderLight}`,
-                  borderRight: sections.length > 1 && idx === activeSecIdx ? 'none' : undefined,
-                  background: idx === activeSecIdx ? `${color}15` : 'transparent',
-                  color: idx === activeSecIdx ? color : colors.textMuted,
+                  borderRadius: activeTarget === idx ? '6px 0 0 6px' : 6,
+                  border: `1.5px solid ${activeTarget === idx ? color : colors.borderLight}`,
+                  borderRight: activeTarget === idx ? 'none' : undefined,
+                  background: activeTarget === idx ? `${color}15` : 'transparent',
+                  color: activeTarget === idx ? color : colors.textMuted,
                   fontSize: 11, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
-                  WebkitTapHighlightColor: 'transparent',
+                  WebkitTapHighlightColor: 'transparent', flexShrink: 0,
                 }}
               >
                 {sec.name || `項目${idx + 1}`}
                 <span style={{ fontSize: 9, marginLeft: 4, opacity: 0.6 }}>{sec.articleIds.length}</span>
               </button>
-              {sections.length > 1 && idx === activeSecIdx && (
-                <button
-                  onClick={() => removeSection(idx)}
-                  style={{
-                    padding: '5px 6px',
-                    borderRadius: '0 6px 6px 0',
-                    border: `1.5px solid ${color}`,
-                    borderLeft: 'none',
-                    background: `${color}15`,
-                    color: '#ef4444', fontSize: 10, fontFamily: 'inherit', cursor: 'pointer',
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >×</button>
+              {activeTarget === idx && (
+                <button onClick={() => removeSection(idx)} style={{
+                  padding: '5px 6px', borderRadius: '0 6px 6px 0',
+                  border: `1.5px solid ${color}`, borderLeft: 'none',
+                  background: `${color}15`, color: '#ef4444', fontSize: 10,
+                  fontFamily: 'inherit', cursor: 'pointer',
+                  WebkitTapHighlightColor: 'transparent',
+                }}>×</button>
               )}
             </div>
           ))}
@@ -481,90 +369,52 @@ function ThemeEditor({ theme, onSave, onClose }) {
           {/* Add section */}
           {showAddSec ? (
             <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-              <input
-                style={{ ...s.input, width: 100, fontSize: 11, padding: '5px 8px' }}
-                placeholder="項目名"
-                value={newSecName}
-                onChange={e => setNewSecName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addSection()}
-                autoFocus
-              />
-              <button onClick={addSection} style={{
-                ...s.btnSmall, fontSize: 10, padding: '4px 8px',
-                color: colors.accent,
-              }}>追加</button>
-              <button onClick={() => { setShowAddSec(false); setNewSecName(''); }} style={{
-                ...s.btnSmall, fontSize: 10, padding: '4px 6px',
-              }}>×</button>
+              <input style={{ ...s.input, width: 100, fontSize: 11, padding: '5px 8px' }} placeholder="項目名" value={newSecName} onChange={e => setNewSecName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addSection()} autoFocus />
+              <button onClick={addSection} style={{ ...s.btnSmall, fontSize: 10, padding: '4px 8px', color: colors.accent }}>追加</button>
+              <button onClick={() => { setShowAddSec(false); setNewSecName(''); }} style={{ ...s.btnSmall, fontSize: 10, padding: '4px 6px' }}>×</button>
             </div>
           ) : (
-            <button
-              onClick={() => setShowAddSec(true)}
-              style={{
-                ...s.btnSmall, fontSize: 10, padding: '5px 8px',
-                color: colors.accent, borderColor: 'rgba(96,165,250,0.3)',
-              }}
-            >+ 項目</button>
+            <button onClick={() => setShowAddSec(true)} style={{ ...s.btnSmall, fontSize: 10, padding: '5px 8px', color: colors.accent, borderColor: 'rgba(96,165,250,0.3)', flexShrink: 0 }}>+ 項目</button>
           )}
         </div>
       </div>
 
-      {/* Section name edit (for active section) */}
-      <div style={{ marginBottom: 8 }}>
-        <input
-          style={{ ...s.input, fontSize: 12, padding: '6px 10px' }}
-          placeholder="セクション名（任意）"
-          value={sections[activeSecIdx]?.name || ''}
-          onChange={e => renameSec(activeSecIdx, e.target.value)}
-        />
-      </div>
+      {/* Section name edit (only for sections, not direct) */}
+      {typeof activeTarget === 'number' && (
+        <div style={{ marginBottom: 8 }}>
+          <input style={{ ...s.input, fontSize: 12, padding: '6px 10px' }} placeholder="項目名" value={sections[activeTarget]?.name || ''} onChange={e => renameSec(activeTarget, e.target.value)} />
+        </div>
+      )}
 
-      {/* Article checklist for active section */}
+      {/* Article checklist */}
       <div style={{ marginBottom: 8 }}>
-        <label style={s.label}>
-          条文を選択 ({totalArticles}件選択中)
-        </label>
-        <div style={{
-          maxHeight: 260, overflow: 'auto', borderRadius: 8,
-          border: `1px solid ${colors.border}`,
-        }}>
+        <label style={s.label}>{activeLabel} に条文を紐付け ({totalArticles}件選択中)</label>
+        <div style={{ maxHeight: 260, overflow: 'auto', borderRadius: 8, border: `1px solid ${colors.border}` }}>
           {lawData.categories.map(cat => {
-            const catChecked = cat.articles.filter(a => articleToSection[a.id] === activeSecIdx);
-            const catAll = cat.articles.every(a => articleToSection[a.id] === activeSecIdx);
+            const isInActive = (id) => {
+              const o = articleOwner[id];
+              return activeTarget === 'direct' ? o === 'direct' : o === activeTarget;
+            };
+            const catChecked = cat.articles.filter(a => isInActive(a.id));
+            const catAll = cat.articles.every(a => isInActive(a.id));
             const catSome = catChecked.length > 0;
 
             return (
               <div key={cat.id}>
-                {/* Category header */}
                 <div
                   onClick={() => {
                     if (catAll) {
-                      // Deselect all in this category from active section
-                      setSections(prev => prev.map((sec, i) =>
-                        i === activeSecIdx
-                          ? { ...sec, articleIds: sec.articleIds.filter(id => !cat.articles.some(a => a.id === id)) }
-                          : sec
-                      ));
+                      // Deselect all in category
+                      cat.articles.forEach(a => { if (isInActive(a.id)) toggleArticle(a.id); });
                     } else {
-                      // Select all in this category to active section (remove from others first)
-                      setSections(prev => {
-                        const catIds = new Set(cat.articles.map(a => a.id));
-                        return prev.map((sec, i) => {
-                          if (i === activeSecIdx) {
-                            const existing = sec.articleIds.filter(id => !catIds.has(id));
-                            return { ...sec, articleIds: [...existing, ...cat.articles.map(a => a.id)] };
-                          }
-                          return { ...sec, articleIds: sec.articleIds.filter(id => !catIds.has(id)) };
-                        });
-                      });
+                      // Select remaining to active target
+                      cat.articles.forEach(a => { if (!isInActive(a.id)) toggleArticle(a.id); });
                     }
                   }}
                   style={{
-                    padding: '7px 10px',
-                    background: `${cat.color}08`,
+                    padding: '7px 10px', background: `${cat.color}08`,
                     borderBottom: `1px solid ${colors.border}`,
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
                     WebkitTapHighlightColor: 'transparent',
                   }}
                 >
@@ -574,61 +424,41 @@ function ThemeEditor({ theme, onSave, onClose }) {
                     background: catAll ? cat.color : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 10, color: '#fff', fontWeight: 700, flexShrink: 0,
-                  }}>
-                    {catAll ? '✓' : catSome ? '−' : ''}
-                  </span>
+                  }}>{catAll ? '✓' : catSome ? '−' : ''}</span>
                   <span style={{ width: 6, height: 6, borderRadius: 2, background: cat.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: cat.color, flex: 1 }}>{cat.name}</span>
-                  <span style={{ fontSize: 10, color: colors.textDim }}>
-                    {catChecked.length}/{cat.articles.length}
-                  </span>
+                  <span style={{ fontSize: 10, color: colors.textDim }}>{catChecked.length}/{cat.articles.length}</span>
                 </div>
 
-                {/* Article rows */}
                 {cat.articles.map(art => {
-                  const inSection = articleToSection[art.id];
-                  const isInActive = inSection === activeSecIdx;
-                  const isInOther = inSection !== undefined && inSection !== activeSecIdx;
-                  const otherSecName = isInOther ? (sections[inSection]?.name || `項目${inSection + 1}`) : '';
+                  const owner = articleOwner[art.id];
+                  const inActive = isInActive(art.id);
+                  const inOther = owner !== undefined && !inActive;
+                  const otherLabel = inOther
+                    ? (owner === 'direct' ? 'テーマ直下' : (sections[owner]?.name || `項目${owner + 1}`))
+                    : '';
 
                   return (
                     <div
                       key={art.id}
                       onClick={() => toggleArticle(art.id)}
                       style={{
-                        padding: '6px 10px 6px 20px',
-                        borderBottom: `1px solid ${colors.border}`,
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        cursor: 'pointer',
-                        background: isInActive ? `${color}08` : 'transparent',
+                        padding: '6px 10px 6px 20px', borderBottom: `1px solid ${colors.border}`,
+                        display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                        background: inActive ? `${color}08` : 'transparent',
                         WebkitTapHighlightColor: 'transparent',
                       }}
                     >
                       <span style={{
                         width: 16, height: 16, borderRadius: 3,
-                        border: `2px solid ${isInActive ? color : isInOther ? colors.textDim : colors.borderInput}`,
-                        background: isInActive ? color : isInOther ? colors.textDim : 'transparent',
+                        border: `2px solid ${inActive ? color : inOther ? colors.textDim : colors.borderInput}`,
+                        background: inActive ? color : inOther ? colors.textDim : 'transparent',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 10, color: '#fff', fontWeight: 700, flexShrink: 0,
-                      }}>
-                        {isInActive ? '✓' : isInOther ? '−' : ''}
-                      </span>
-                      <span style={{
-                        fontSize: 11, fontWeight: 700, color: cat.color,
-                        minWidth: 56, flexShrink: 0,
-                      }}>{art.article}</span>
-                      <span style={{
-                        fontSize: 11, color: colors.text, flex: 1,
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>{art.title}</span>
-                      {isInOther && (
-                        <span style={{
-                          fontSize: 9, color: colors.textDim,
-                          padding: '1px 4px', borderRadius: 3,
-                          background: 'rgba(255,255,255,0.04)',
-                          whiteSpace: 'nowrap',
-                        }}>{otherSecName}</span>
-                      )}
+                      }}>{inActive ? '✓' : inOther ? '−' : ''}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: cat.color, minWidth: 56, flexShrink: 0 }}>{art.article}</span>
+                      <span style={{ fontSize: 11, color: colors.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{art.title}</span>
+                      {inOther && <span style={{ fontSize: 9, color: colors.textDim, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,255,255,0.04)', whiteSpace: 'nowrap' }}>{otherLabel}</span>}
                     </div>
                   );
                 })}
@@ -638,22 +468,9 @@ function ThemeEditor({ theme, onSave, onClose }) {
         </div>
       </div>
 
-      {/* Actions */}
       <div style={{ display: 'flex', gap: 8 }}>
-        <button
-          onClick={handleSave}
-          disabled={!name.trim()}
-          style={{
-            ...s.btnPrimary, flex: 1, padding: '10px 16px',
-            opacity: name.trim() ? 1 : 0.4,
-            background: color,
-          }}
-        >
-          {theme ? 'テーマを更新' : 'テーマを作成'}
-        </button>
-        <button style={{ ...s.btnSecondary, padding: '10px 16px' }} onClick={onClose}>
-          キャンセル
-        </button>
+        <button onClick={handleSave} disabled={!name.trim()} style={{ ...s.btnPrimary, flex: 1, padding: '10px 16px', opacity: name.trim() ? 1 : 0.4, background: color }}>{theme ? 'テーマを更新' : 'テーマを作成'}</button>
+        <button style={{ ...s.btnSecondary, padding: '10px 16px' }} onClick={onClose}>キャンセル</button>
       </div>
     </div>
   );

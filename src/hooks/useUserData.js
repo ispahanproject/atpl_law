@@ -187,13 +187,15 @@ export function useUserData() {
   const themesByArticle = useMemo(() => {
     const result = {};
     for (const theme of Object.values(userData.themes || {})) {
-      for (const sec of theme.sections || []) {
-        for (const articleId of sec.articleIds) {
-          if (!result[articleId]) result[articleId] = [];
-          if (!result[articleId].some(t => t.id === theme.id)) {
-            result[articleId].push(theme);
-          }
+      const addToResult = (articleId) => {
+        if (!result[articleId]) result[articleId] = [];
+        if (!result[articleId].some(t => t.id === theme.id)) {
+          result[articleId].push(theme);
         }
+      };
+      for (const articleId of theme.articleIds || []) addToResult(articleId);
+      for (const sec of theme.sections || []) {
+        for (const articleId of sec.articleIds) addToResult(articleId);
       }
     }
     return result;

@@ -48,6 +48,7 @@ function migrateIfNeeded(data) {
       delete theme.articleIds;
     }
     if (!theme.sections) theme.sections = [];
+    if (!theme.articleIds) theme.articleIds = [];
   }
   return data;
 }
