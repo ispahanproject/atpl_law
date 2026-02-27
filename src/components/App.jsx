@@ -13,6 +13,7 @@ import LinkList from './LinkList.jsx';
 import TextSelector from './TextSelector.jsx';
 import Modal from './Modal.jsx';
 import RegulationForm from './RegulationForm.jsx';
+import GraphView from './GraphView.jsx';
 
 export default function App() {
   const userDataAPI = useUserData();
@@ -134,11 +135,11 @@ export default function App() {
                     </p>
                   </div>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {['list', 'map', 'tree'].map(m => (
+                    {['list', 'map', 'tree', 'graph'].map(m => (
                       <button key={m} onClick={() => setViewMode(m)} style={{
                         ...s.catBtn(viewMode === m, colors.accent),
                         fontSize: 10, padding: '4px 8px',
-                      }}>{m === 'list' ? 'リスト' : m === 'map' ? 'マップ' : 'ツリー'}</button>
+                      }}>{({ list: 'リスト', map: 'マップ', tree: 'ツリー', graph: 'グラフ' })[m]}</button>
                     ))}
                     <button
                       onClick={() => setShowImportExport(!showImportExport)}
@@ -359,6 +360,14 @@ export default function App() {
                       );
                     })}
                 </div>
+              )}
+
+              {/* ===== Graph View ===== */}
+              {viewMode === 'graph' && (
+                <GraphView
+                  onSelectArticle={(id) => setSelectedArticle(id)}
+                  onOpenDetail={openDetail}
+                />
               )}
             </div>
           </>
