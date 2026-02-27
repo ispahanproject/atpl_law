@@ -128,25 +128,29 @@ export default function App() {
           <>
             <div style={s.topBar}>
               <div style={s.container}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ minWidth: 0 }}>
                     <h1 style={s.h1}>航空法 知識整理ツール</h1>
                     <p style={{ fontSize: 10, color: colors.textMuted, letterSpacing: '0.08em' }}>
                       法令 × 社内規定 紐付けマップ
                     </p>
                   </div>
-                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {['list', 'map', 'tree', 'graph', 'theme'].map(m => (
-                      <button key={m} onClick={() => setViewMode(m)} style={{
-                        ...s.catBtn(viewMode === m, colors.accent),
-                        fontSize: 10, padding: '4px 8px',
-                      }}>{({ list: 'リスト', map: 'マップ', tree: 'ツリー', graph: 'グラフ', theme: 'テーマ' })[m]}</button>
-                    ))}
-                    <button
-                      onClick={() => setShowImportExport(!showImportExport)}
-                      style={{ ...s.catBtn(false, colors.textMuted), fontSize: 10, padding: '4px 8px' }}
-                    >⚙</button>
-                  </div>
+                  <button
+                    onClick={() => setShowImportExport(!showImportExport)}
+                    style={{ ...s.catBtn(false, colors.textMuted), fontSize: 10, padding: '4px 8px', flexShrink: 0 }}
+                  >⚙</button>
+                </div>
+                <div style={{
+                  display: 'flex', gap: 4, marginTop: 8,
+                  overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+                  scrollbarWidth: 'none', msOverflowStyle: 'none',
+                }}>
+                  {['list', 'map', 'tree', 'graph', 'theme'].map(m => (
+                    <button key={m} onClick={() => setViewMode(m)} style={{
+                      ...s.catBtn(viewMode === m, colors.accent),
+                      fontSize: 10, padding: '4px 10px', flexShrink: 0,
+                    }}>{({ list: 'リスト', map: 'マップ', tree: 'ツリー', graph: 'グラフ', theme: 'テーマ' })[m]}</button>
+                  ))}
                 </div>
 
                 {showImportExport && (

@@ -39,5 +39,15 @@ function migrateIfNeeded(data) {
   if (!data.links) data.links = {};
   if (!data.notes) data.notes = {};
   if (!data.themes) data.themes = {};
+  // Migrate themes: articleIds → sections
+  for (const theme of Object.values(data.themes)) {
+    if (theme.articleIds && !theme.sections) {
+      theme.sections = theme.articleIds.length > 0
+        ? [{ id: 'sec_migrated', name: '', articleIds: theme.articleIds }]
+        : [];
+      delete theme.articleIds;
+    }
+    if (!theme.sections) theme.sections = [];
+  }
   return data;
 }
