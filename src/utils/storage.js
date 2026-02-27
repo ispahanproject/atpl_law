@@ -38,5 +38,6 @@ function migrateIfNeeded(data) {
   if (!data.regulations) data.regulations = {};
   if (!data.links) data.links = {};
   if (!data.notes) data.notes = {};
+  if (!data.themes) data.themes = {};
   return data;
 }

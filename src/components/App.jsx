@@ -14,6 +14,7 @@ import TextSelector from './TextSelector.jsx';
 import Modal from './Modal.jsx';
 import RegulationForm from './RegulationForm.jsx';
 import GraphView from './GraphView.jsx';
+import ThemeView from './ThemeView.jsx';
 
 export default function App() {
   const userDataAPI = useUserData();
@@ -135,11 +136,11 @@ export default function App() {
                     </p>
                   </div>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {['list', 'map', 'tree', 'graph'].map(m => (
+                    {['list', 'map', 'tree', 'graph', 'theme'].map(m => (
                       <button key={m} onClick={() => setViewMode(m)} style={{
                         ...s.catBtn(viewMode === m, colors.accent),
                         fontSize: 10, padding: '4px 8px',
-                      }}>{({ list: 'リスト', map: 'マップ', tree: 'ツリー', graph: 'グラフ' })[m]}</button>
+                      }}>{({ list: 'リスト', map: 'マップ', tree: 'ツリー', graph: 'グラフ', theme: 'テーマ' })[m]}</button>
                     ))}
                     <button
                       onClick={() => setShowImportExport(!showImportExport)}
@@ -368,6 +369,11 @@ export default function App() {
                   onSelectArticle={(id) => setSelectedArticle(id)}
                   onOpenDetail={openDetail}
                 />
+              )}
+
+              {/* ===== Theme View ===== */}
+              {viewMode === 'theme' && (
+                <ThemeView onOpenDetail={openDetail} />
               )}
             </div>
           </>

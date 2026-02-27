@@ -152,6 +152,49 @@ export function useUserData() {
     return result;
   }, [userData.links, userData.regulations]);
 
+  // Themes CRUD
+  const addTheme = useCallback((theme) => {
+    const id = generateId('theme');
+    const now = new Date().toISOString();
+    setUserData(prev => ({
+      ...prev,
+      themes: {
+        ...prev.themes,
+        [id]: { ...theme, id, articleIds: theme.articleIds || [], createdAt: now, updatedAt: now },
+      },
+    }));
+    return id;
+  }, []);
+
+  const updateTheme = useCallback((id, updates) => {
+    setUserData(prev => ({
+      ...prev,
+      themes: {
+        ...prev.themes,
+        [id]: { ...prev.themes[id], ...updates, updatedAt: new Date().toISOString() },
+      },
+    }));
+  }, []);
+
+  const deleteTheme = useCallback((id) => {
+    setUserData(prev => {
+      const { [id]: _, ...rest } = prev.themes;
+      return { ...prev, themes: rest };
+    });
+  }, []);
+
+  // Derived: themes by article (which themes does each article belong to)
+  const themesByArticle = useMemo(() => {
+    const result = {};
+    for (const theme of Object.values(userData.themes || {})) {
+      for (const articleId of theme.articleIds) {
+        if (!result[articleId]) result[articleId] = [];
+        result[articleId].push(theme);
+      }
+    }
+    return result;
+  }, [userData.themes]);
+
   // Derived: links grouped by regulation (for relationship view)
   const linksByRegulation = useMemo(() => {
     const result = {};
@@ -172,9 +215,11 @@ export function useUserData() {
     addRegulation, updateRegulation, deleteRegulation,
     addLink, updateLink, deleteLink,
     addNote, updateNote, deleteNote,
+    addTheme, updateTheme, deleteTheme,
     getLinksForArticle, getLinksForRegulation, getNotesForArticle,
     linkCountByArticle, noteCountByArticle,
     linkedRegsByArticle, linksByRegulation,
+    themesByArticle,
     setFullUserData,
   };
 }
