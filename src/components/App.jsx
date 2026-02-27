@@ -4,6 +4,8 @@ import { useUserData, UserDataContext } from '../hooks/useUserData.js';
 import { exportUserData, importUserData } from '../utils/exportImport.js';
 import { s, colors } from '../styles/theme.js';
 import BottomNav from './BottomNav.jsx';
+import BottomSheet from './BottomSheet.jsx';
+import QuickLinkForm from './QuickLinkForm.jsx';
 import RegulationManager from './RegulationManager.jsx';
 import LinkManager from './LinkManager.jsx';
 import NoteEditor from './NoteEditor.jsx';
@@ -14,17 +16,20 @@ import RegulationForm from './RegulationForm.jsx';
 
 export default function App() {
   const userDataAPI = useUserData();
-  const { linkCountByArticle, noteCountByArticle, userData, setFullUserData } = userDataAPI;
+  const { linkCountByArticle, noteCountByArticle, linkedRegsByArticle, userData, setFullUserData } = userDataAPI;
 
   // App state
   const [activeTab, setActiveTab] = useState('articles');
-  const [viewMode, setViewMode] = useState('map');
+  const [viewMode, setViewMode] = useState('list');
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [detailExpanded, setDetailExpanded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [detailTab, setDetailTab] = useState('summary');
-  const [showCreateLink, setShowCreateLink] = useState(null); // { articleId, text }
+  const [showCreateLink, setShowCreateLink] = useState(null);
+  const [quickLinkArticle, setQuickLinkArticle] = useState(null);
   const [showImportExport, setShowImportExport] = useState(false);
+  const [collapsedCategories, setCollapsedCategories] = useState(new Set());
 
   // Filtering
   const filtered = useMemo(() => {
@@ -58,7 +63,23 @@ export default function App() {
   const navigateToArticle = useCallback((id) => {
     setActiveTab('articles');
     setSelectedArticle(id);
+    setDetailExpanded(false);
     setDetailTab('summary');
+  }, []);
+
+  const openDetail = useCallback((id) => {
+    setSelectedArticle(id);
+    setDetailExpanded(false);
+    setDetailTab('summary');
+  }, []);
+
+  const toggleCategory = useCallback((catId) => {
+    setCollapsedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(catId)) next.delete(catId);
+      else next.add(catId);
+      return next;
+    });
   }, []);
 
   // Import handler
@@ -79,11 +100,29 @@ export default function App() {
     e.target.value = '';
   };
 
+  // Render regulation badges for an article
+  const renderRegBadges = (articleId) => {
+    const regs = linkedRegsByArticle[articleId] || [];
+    if (regs.length === 0) return null;
+    const show = regs.slice(0, 2);
+    const extra = regs.length - 2;
+    return (
+      <>
+        {show.map(r => (
+          <span key={r.id} style={s.regTag}>
+            {r.category.length > 6 ? r.category.slice(0, 6) : r.category}
+          </span>
+        ))}
+        {extra > 0 && <span style={{ ...s.regTag, background: 'rgba(6,182,212,0.06)' }}>+{extra}</span>}
+      </>
+    );
+  };
+
   return (
     <UserDataContext.Provider value={userDataAPI}>
       <div style={s.root}>
         {/* ===== Articles Tab ===== */}
-        {activeTab === 'articles' && !selectedArticle && (
+        {activeTab === 'articles' && (
           <>
             <div style={s.topBar}>
               <div style={s.container}>
@@ -95,11 +134,11 @@ export default function App() {
                     </p>
                   </div>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {['map', 'tree'].map(m => (
+                    {['list', 'map', 'tree'].map(m => (
                       <button key={m} onClick={() => setViewMode(m)} style={{
                         ...s.catBtn(viewMode === m, colors.accent),
                         fontSize: 10, padding: '4px 8px',
-                      }}>{m === 'map' ? 'マップ' : 'ツリー'}</button>
+                      }}>{m === 'list' ? 'リスト' : m === 'map' ? 'マップ' : 'ツリー'}</button>
                     ))}
                     <button
                       onClick={() => setShowImportExport(!showImportExport)}
@@ -113,10 +152,7 @@ export default function App() {
                     display: 'flex', gap: 8, marginTop: 8, padding: '8px 0',
                     borderTop: `1px solid ${colors.border}`,
                   }}>
-                    <button
-                      style={s.btnSmall}
-                      onClick={() => exportUserData(userData)}
-                    >📤 エクスポート</button>
+                    <button style={s.btnSmall} onClick={() => exportUserData(userData)}>📤 エクスポート</button>
                     <label style={{ ...s.btnSmall, display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
                       📥 インポート
                       <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
@@ -128,13 +164,10 @@ export default function App() {
                   style={s.search}
                   placeholder="条文番号・キーワードで検索"
                   value={searchTerm}
-                  onChange={e => { setSearchTerm(e.target.value); }}
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
                 <div style={{ display: 'flex', gap: 5, marginTop: 8, flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    style={s.catBtn(!selectedCategory, '#94a3b8')}
-                  >全て</button>
+                  <button onClick={() => setSelectedCategory(null)} style={s.catBtn(!selectedCategory, '#94a3b8')}>全て</button>
                   {lawData.categories.map(c => (
                     <button
                       key={c.id}
@@ -147,7 +180,94 @@ export default function App() {
             </div>
 
             <div style={{ ...s.container, paddingTop: 12, paddingBottom: 20 }}>
-              {/* Map View */}
+              {/* ===== List View (Default) ===== */}
+              {viewMode === 'list' && (
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${colors.border}` }}>
+                  {lawData.categories
+                    .filter(c => !selectedCategory || c.id === selectedCategory)
+                    .map(cat => {
+                      const arts = cat.articles.filter(a => filtered.some(f => f.id === a.id));
+                      if (!arts.length) return null;
+                      const collapsed = collapsedCategories.has(cat.id);
+                      return (
+                        <div key={cat.id}>
+                          {/* Category header */}
+                          <div
+                            onClick={() => toggleCategory(cat.id)}
+                            style={s.listCategoryHeader(cat.color)}
+                          >
+                            <span style={{
+                              fontSize: 10, color: colors.textDim,
+                              transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)',
+                              transition: 'transform 0.15s',
+                              display: 'inline-block',
+                            }}>▼</span>
+                            <span style={{
+                              width: 8, height: 8, borderRadius: 2,
+                              background: cat.color, flexShrink: 0,
+                            }} />
+                            <span style={{ fontSize: 12, fontWeight: 700, color: cat.color, flex: 1 }}>
+                              {cat.name}
+                            </span>
+                            <span style={{ fontSize: 10, color: colors.textDim }}>{arts.length}</span>
+                          </div>
+
+                          {/* Article rows */}
+                          {!collapsed && arts.map(art => {
+                            const lc = linkCountByArticle[art.id] || 0;
+                            const nc = noteCountByArticle[art.id] || 0;
+                            return (
+                              <div key={art.id} style={s.listRow}>
+                                {/* Article info - clickable area */}
+                                <div
+                                  onClick={() => openDetail(art.id)}
+                                  style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}
+                                >
+                                  <span style={{
+                                    width: 6, height: 6, borderRadius: '50%',
+                                    background: cat.color, flexShrink: 0,
+                                  }} />
+                                  <span style={{
+                                    fontSize: 12, fontWeight: 800, color: cat.color,
+                                    minWidth: 56, flexShrink: 0,
+                                  }}>{art.article}</span>
+                                  <span style={{
+                                    fontSize: 12, fontWeight: 600, color: colors.text,
+                                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                    flex: 1,
+                                  }}>{art.title}</span>
+                                </div>
+
+                                {/* Badges area */}
+                                <div style={{ display: 'flex', gap: 3, alignItems: 'center', flexShrink: 0 }}>
+                                  {renderRegBadges(art.id)}
+                                  {lc > 0 && <span style={s.countBadge(colors.accent)}>🔗{lc}</span>}
+                                  {nc > 0 && <span style={s.countBadge(colors.accentPurple)}>📝{nc}</span>}
+                                </div>
+
+                                {/* Quick link button */}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setQuickLinkArticle(art.id); }}
+                                  style={{
+                                    width: 28, height: 28, borderRadius: 6,
+                                    border: `1px solid ${colors.borderLight}`,
+                                    background: 'transparent', color: colors.textMuted,
+                                    fontSize: 14, cursor: 'pointer', flexShrink: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontFamily: 'inherit',
+                                    WebkitTapHighlightColor: 'transparent',
+                                  }}
+                                >+</button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* ===== Map View ===== */}
               {viewMode === 'map' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
                   {filtered.map(art => {
@@ -156,7 +276,7 @@ export default function App() {
                     return (
                       <div
                         key={art.id}
-                        onClick={() => { setSelectedArticle(art.id); setDetailTab('summary'); }}
+                        onClick={() => openDetail(art.id)}
                         style={s.card(false, false, art.categoryColor)}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
@@ -181,18 +301,8 @@ export default function App() {
                         }}>{art.summary}</p>
                         {(lc > 0 || nc > 0) && (
                           <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-                            {lc > 0 && (
-                              <span style={{
-                                fontSize: 9, padding: '2px 6px', borderRadius: 4,
-                                background: 'rgba(96,165,250,0.12)', color: colors.accent, fontWeight: 700,
-                              }}>🔗{lc}</span>
-                            )}
-                            {nc > 0 && (
-                              <span style={{
-                                fontSize: 9, padding: '2px 6px', borderRadius: 4,
-                                background: 'rgba(167,139,250,0.12)', color: colors.accentPurple, fontWeight: 700,
-                              }}>📝{nc}</span>
-                            )}
+                            {lc > 0 && <span style={s.countBadge(colors.accent)}>🔗{lc}</span>}
+                            {nc > 0 && <span style={s.countBadge(colors.accentPurple)}>📝{nc}</span>}
                           </div>
                         )}
                       </div>
@@ -201,7 +311,7 @@ export default function App() {
                 </div>
               )}
 
-              {/* Tree View */}
+              {/* ===== Tree View ===== */}
               {viewMode === 'tree' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {lawData.categories
@@ -225,7 +335,7 @@ export default function App() {
                               return (
                                 <div
                                   key={art.id}
-                                  onClick={() => { setSelectedArticle(art.id); setDetailTab('summary'); }}
+                                  onClick={() => openDetail(art.id)}
                                   style={{
                                     padding: '10px 14px', borderRadius: 8,
                                     background: colors.bgCard, border: `1px solid ${colors.border}`,
@@ -239,12 +349,7 @@ export default function App() {
                                     <span style={{ fontSize: 13, fontWeight: 700, color: colors.text, flex: 1 }}>
                                       {art.title}
                                     </span>
-                                    {lc > 0 && (
-                                      <span style={{
-                                        fontSize: 9, padding: '2px 5px', borderRadius: 3,
-                                        background: 'rgba(96,165,250,0.12)', color: colors.accent, fontWeight: 700,
-                                      }}>🔗{lc}</span>
-                                    )}
+                                    {lc > 0 && <span style={s.countBadge(colors.accent)}>🔗{lc}</span>}
                                   </div>
                                 </div>
                               );
@@ -259,15 +364,34 @@ export default function App() {
           </>
         )}
 
-        {/* ===== Article Detail (Full Screen) ===== */}
-        {activeTab === 'articles' && selectedArt && (
-          <div style={{ minHeight: '100dvh', background: colors.bg }}>
-            {/* Header */}
+        {/* ===== Article Detail BottomSheet ===== */}
+        {selectedArt && !detailExpanded && (
+          <BottomSheet
+            title={`${selectedArt.law} ${selectedArt.article}`}
+            onClose={() => setSelectedArticle(null)}
+            height="75dvh"
+          >
+            <ArticleDetailContent
+              art={selectedArt}
+              detailTab={detailTab}
+              setDetailTab={setDetailTab}
+              related={related}
+              onExpand={() => setDetailExpanded(true)}
+              onNavigate={(id) => { setSelectedArticle(id); setDetailTab('summary'); }}
+              onCreateLink={(text) => setShowCreateLink({ articleId: selectedArt.id, text })}
+              onAddLink={() => setShowCreateLink({ articleId: selectedArt.id, text: '' })}
+            />
+          </BottomSheet>
+        )}
+
+        {/* ===== Article Detail Full Screen (expanded) ===== */}
+        {selectedArt && detailExpanded && (
+          <div style={{ position: 'fixed', inset: 0, background: colors.bg, zIndex: 35, overflow: 'auto' }}>
             <div style={s.topBar}>
               <div style={s.container}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <button
-                    onClick={() => setSelectedArticle(null)}
+                    onClick={() => setDetailExpanded(false)}
                     style={{
                       background: 'none', border: 'none', color: colors.accent,
                       fontSize: 14, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
@@ -280,119 +404,18 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            <div style={{ ...s.container, paddingTop: 16, paddingBottom: 20 }}>
-              {/* Title area */}
-              <div style={{ marginBottom: 16 }}>
-                <span style={s.badge(selectedArt.categoryColor)}>{selectedArt.categoryName}</span>
-                <h2 style={{ fontSize: 18, fontWeight: 800, marginTop: 8, color: colors.white }}>
-                  {selectedArt.article}
-                </h2>
-                <p style={{ fontSize: 14, fontWeight: 600, color: selectedArt.categoryColor, marginTop: 2 }}>
-                  {selectedArt.title}
-                </p>
-              </div>
-
-              {/* Tabs */}
-              <div style={{
-                display: 'flex', gap: 4, marginBottom: 16, padding: 3,
-                background: colors.bgPanel, borderRadius: 8,
-                border: `1px solid ${colors.border}`, width: 'fit-content',
-              }}>
-                <button onClick={() => setDetailTab('summary')} style={s.tabBtn(detailTab === 'summary')}>要約</button>
-                <button
-                  onClick={() => selectedArt.officialText && setDetailTab('official')}
-                  style={{
-                    ...s.tabBtn(detailTab === 'official'),
-                    opacity: selectedArt.officialText ? 1 : 0.35,
-                    cursor: selectedArt.officialText ? 'pointer' : 'not-allowed',
-                  }}
-                >条文</button>
-              </div>
-
-              {/* Content */}
-              {detailTab === 'summary' ? (
-                <p style={{ fontSize: 14, lineHeight: 1.9, color: colors.textSub, marginBottom: 16 }}>
-                  {selectedArt.summary}
-                </p>
-              ) : selectedArt.officialText ? (
-                <div style={{ marginBottom: 16 }}>
-                  <TextSelector
-                    articleId={selectedArt.id}
-                    text={selectedArt.officialText}
-                    onCreateLink={(text) => setShowCreateLink({ articleId: selectedArt.id, text })}
-                  />
-                  {selectedArt.eGovUrl && (
-                    <div style={{ marginTop: 8 }}>
-                      <a
-                        href={selectedArt.eGovUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: 10, color: colors.accent, textDecoration: 'none',
-                          padding: '2px 8px', borderRadius: 4,
-                          border: '1px solid rgba(96,165,250,0.3)',
-                          background: 'rgba(96,165,250,0.08)',
-                        }}
-                      >e-Govで確認 →</a>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p style={{ fontSize: 13, color: colors.textDim, fontStyle: 'italic', marginBottom: 16 }}>
-                  e-Gov条文データなし（AIP・社内規定等）
-                </p>
-              )}
-
-              {/* Keywords */}
-              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 20 }}>
-                {selectedArt.keywords.map(kw => (
-                  <span key={kw} style={{
-                    fontSize: 11, padding: '3px 8px', borderRadius: 4,
-                    background: colors.bgHover, color: '#cbd5e1',
-                    border: `1px solid ${colors.borderLight}`,
-                  }}>#{kw}</span>
-                ))}
-              </div>
-
-              {/* Links section */}
-              <LinkList
-                articleId={selectedArt.id}
+            <div style={{ ...s.container, paddingTop: 16, paddingBottom: 80 }}>
+              <ArticleDetailContent
+                art={selectedArt}
+                detailTab={detailTab}
+                setDetailTab={setDetailTab}
+                related={related}
+                expanded={true}
+                onClose={() => { setSelectedArticle(null); setDetailExpanded(false); }}
+                onNavigate={(id) => { setSelectedArticle(id); setDetailTab('summary'); }}
+                onCreateLink={(text) => setShowCreateLink({ articleId: selectedArt.id, text })}
                 onAddLink={() => setShowCreateLink({ articleId: selectedArt.id, text: '' })}
               />
-
-              {/* Notes section */}
-              <NoteEditor articleId={selectedArt.id} />
-
-              {/* Related articles */}
-              {related.length > 0 && (
-                <div style={{ marginTop: 8 }}>
-                  <div style={s.sectionTitle}>
-                    <span>関連条項 ({related.length}件)</span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {related.map(r => (
-                      <button key={r.id} onClick={() => { setSelectedArticle(r.id); setDetailTab('summary'); }} style={{
-                        display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px',
-                        borderRadius: 8, border: `1px solid ${r.categoryColor}33`,
-                        background: `${r.categoryColor}08`, cursor: 'pointer', textAlign: 'left',
-                        fontFamily: 'inherit', color: colors.text, fontSize: 12, transition: 'all 0.15s',
-                        WebkitTapHighlightColor: 'transparent',
-                      }}>
-                        <span style={{
-                          width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-                          background: r.categoryColor,
-                        }} />
-                        <span style={{ fontWeight: 700, color: r.categoryColor, minWidth: 80, fontSize: 11 }}>
-                          {r.article}
-                        </span>
-                        <span style={{ color: colors.textSub, flex: 1 }}>{r.title}</span>
-                        <span style={{ color: colors.textDim }}>→</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -400,165 +423,197 @@ export default function App() {
         {/* ===== Regulations Tab ===== */}
         {activeTab === 'regulations' && <RegulationManager />}
 
-        {/* ===== Links Tab ===== */}
+        {/* ===== Links / Relationship Tab ===== */}
         {activeTab === 'links' && <LinkManager onNavigateToArticle={navigateToArticle} />}
 
-        {/* ===== Create Link Modal ===== */}
+        {/* ===== Quick Link BottomSheet ===== */}
+        {quickLinkArticle && (
+          <BottomSheet
+            title="紐付けを追加"
+            onClose={() => setQuickLinkArticle(null)}
+            height="65dvh"
+          >
+            <QuickLinkForm
+              articleId={quickLinkArticle}
+              onClose={() => setQuickLinkArticle(null)}
+              onNewRegulation={() => {
+                setQuickLinkArticle(null);
+                setActiveTab('regulations');
+              }}
+            />
+          </BottomSheet>
+        )}
+
+        {/* ===== Create Link BottomSheet (from detail view) ===== */}
         {showCreateLink && (
-          <CreateLinkModal
-            articleId={showCreateLink.articleId}
-            highlightedText={showCreateLink.text}
+          <BottomSheet
+            title="紐付けを作成"
             onClose={() => setShowCreateLink(null)}
-          />
+            height="70dvh"
+          >
+            <QuickLinkForm
+              articleId={showCreateLink.articleId}
+              highlightedText={showCreateLink.text}
+              onClose={() => setShowCreateLink(null)}
+              onNewRegulation={() => {
+                setShowCreateLink(null);
+                setActiveTab('regulations');
+              }}
+            />
+          </BottomSheet>
         )}
 
         {/* Bottom Navigation */}
         <BottomNav activeTab={activeTab} onTabChange={(tab) => {
           setActiveTab(tab);
-          if (tab === 'articles') setSelectedArticle(null);
+          if (tab !== 'articles') {
+            setSelectedArticle(null);
+            setDetailExpanded(false);
+          }
         }} />
       </div>
     </UserDataContext.Provider>
   );
 }
 
-// Inline Create Link Modal
-function CreateLinkModal({ articleId, highlightedText, onClose }) {
-  const { userData, addLink, addRegulation } = useUserData();
-  const regulations = Object.values(userData.regulations);
-  const article = allArticles.find(a => a.id === articleId);
-
-  const [selectedRegId, setSelectedRegId] = useState('');
-  const [note, setNote] = useState('');
-  const [regSearch, setRegSearch] = useState('');
-  const [showNewReg, setShowNewReg] = useState(false);
-
-  const filteredRegs = regulations.filter(r => {
-    if (!regSearch) return true;
-    const t = regSearch.toLowerCase();
-    return r.title.toLowerCase().includes(t) || r.category.toLowerCase().includes(t) || r.referenceNumber.toLowerCase().includes(t);
-  });
-
-  const save = () => {
-    if (!selectedRegId) return;
-    addLink({
-      sourceArticleId: articleId,
-      highlightedText: highlightedText || '',
-      targetRegulationId: selectedRegId,
-      note: note.trim(),
-    });
-    onClose();
-  };
-
-  if (showNewReg) {
-    return (
-      <RegulationForm
-        regulation={null}
-        onClose={() => setShowNewReg(false)}
-        onSaved={() => setShowNewReg(false)}
-      />
-    );
-  }
-
+// ===== Article Detail Content (shared between BottomSheet and full screen) =====
+function ArticleDetailContent({
+  art, detailTab, setDetailTab, related,
+  expanded, onExpand, onClose, onNavigate, onCreateLink, onAddLink,
+}) {
   return (
-    <Modal title="紐付けを作成" onClose={onClose}>
-      {/* Source */}
-      <div style={s.formGroup}>
-        <label style={s.label}>法条項</label>
-        <div style={{
-          padding: '8px 12px', borderRadius: 8,
-          background: colors.bgCard, border: `1px solid ${colors.border}`,
-          fontSize: 13, color: colors.white,
-        }}>
-          {article ? `${article.law} ${article.article} — ${article.title}` : articleId}
-        </div>
+    <>
+      {/* Title area */}
+      <div style={{ marginBottom: 12 }}>
+        <span style={s.badge(art.categoryColor)}>{art.categoryName}</span>
+        <h2 style={{ fontSize: 17, fontWeight: 800, marginTop: 6, color: colors.white }}>
+          {art.article}
+        </h2>
+        <p style={{ fontSize: 13, fontWeight: 600, color: art.categoryColor, marginTop: 2 }}>
+          {art.title}
+        </p>
       </div>
 
-      {/* Highlighted text */}
-      {highlightedText && (
-        <div style={s.formGroup}>
-          <label style={s.label}>選択テキスト</label>
-          <div style={{
-            padding: '8px 12px', borderRadius: 8,
-            background: 'rgba(96,165,250,0.08)',
-            border: '1px solid rgba(96,165,250,0.2)',
-            borderLeft: '3px solid rgba(96,165,250,0.5)',
-            fontSize: 12, color: colors.textSub, lineHeight: 1.7,
-          }}>
-            {highlightedText}
+      {/* Tabs */}
+      <div style={{
+        display: 'flex', gap: 4, marginBottom: 14, padding: 3,
+        background: colors.bgPanel, borderRadius: 8,
+        border: `1px solid ${colors.border}`, width: 'fit-content',
+      }}>
+        <button onClick={() => setDetailTab('summary')} style={s.tabBtn(detailTab === 'summary')}>要約</button>
+        <button
+          onClick={() => art.officialText && setDetailTab('official')}
+          style={{
+            ...s.tabBtn(detailTab === 'official'),
+            opacity: art.officialText ? 1 : 0.35,
+            cursor: art.officialText ? 'pointer' : 'not-allowed',
+          }}
+        >条文</button>
+      </div>
+
+      {/* Content */}
+      {detailTab === 'summary' ? (
+        <p style={{ fontSize: 13, lineHeight: 1.9, color: colors.textSub, marginBottom: 14 }}>
+          {art.summary}
+        </p>
+      ) : art.officialText ? (
+        <div style={{ marginBottom: 14 }}>
+          {expanded ? (
+            <TextSelector
+              articleId={art.id}
+              text={art.officialText}
+              onCreateLink={onCreateLink}
+            />
+          ) : (
+            <div>
+              <p style={{
+                fontSize: 12, lineHeight: 1.8, color: colors.textSub,
+                maxHeight: 120, overflow: 'hidden',
+                maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+              }}>
+                {art.officialText}
+              </p>
+              {onExpand && (
+                <button
+                  onClick={onExpand}
+                  style={{
+                    ...s.btnSmall, marginTop: 8, width: '100%',
+                    padding: '8px 12px', textAlign: 'center',
+                    color: colors.accent, borderColor: 'rgba(96,165,250,0.3)',
+                  }}
+                >条文全文を表示してテキスト選択 →</button>
+              )}
+            </div>
+          )}
+          {art.eGovUrl && (
+            <div style={{ marginTop: 8 }}>
+              <a
+                href={art.eGovUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: 10, color: colors.accent, textDecoration: 'none',
+                  padding: '2px 8px', borderRadius: 4,
+                  border: '1px solid rgba(96,165,250,0.3)',
+                  background: 'rgba(96,165,250,0.08)',
+                }}
+              >e-Govで確認 →</a>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p style={{ fontSize: 12, color: colors.textDim, fontStyle: 'italic', marginBottom: 14 }}>
+          e-Gov条文データなし（AIP・社内規定等）
+        </p>
+      )}
+
+      {/* Keywords */}
+      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 16 }}>
+        {art.keywords.map(kw => (
+          <span key={kw} style={{
+            fontSize: 10, padding: '2px 7px', borderRadius: 4,
+            background: colors.bgHover, color: '#cbd5e1',
+            border: `1px solid ${colors.borderLight}`,
+          }}>#{kw}</span>
+        ))}
+      </div>
+
+      {/* Links section */}
+      <LinkList articleId={art.id} onAddLink={onAddLink} />
+
+      {/* Notes section */}
+      <NoteEditor articleId={art.id} />
+
+      {/* Related articles */}
+      {related.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div style={s.sectionTitle}>
+            <span>関連条項 ({related.length}件)</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {related.map(r => (
+              <button key={r.id} onClick={() => onNavigate(r.id)} style={{
+                display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px',
+                borderRadius: 8, border: `1px solid ${r.categoryColor}33`,
+                background: `${r.categoryColor}08`, cursor: 'pointer', textAlign: 'left',
+                fontFamily: 'inherit', color: colors.text, fontSize: 11,
+                WebkitTapHighlightColor: 'transparent',
+              }}>
+                <span style={{
+                  width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                  background: r.categoryColor,
+                }} />
+                <span style={{ fontWeight: 700, color: r.categoryColor, minWidth: 64, fontSize: 11 }}>
+                  {r.article}
+                </span>
+                <span style={{ color: colors.textSub, flex: 1 }}>{r.title}</span>
+                <span style={{ color: colors.textDim }}>→</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
-
-      {/* Target regulation */}
-      <div style={s.formGroup}>
-        <label style={s.label}>紐付け先の社内規定</label>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-          <input
-            style={{ ...s.input, flex: 1, marginTop: 0 }}
-            placeholder="規定を検索..."
-            value={regSearch}
-            onChange={e => setRegSearch(e.target.value)}
-          />
-          <button style={s.btnSmall} onClick={() => setShowNewReg(true)}>+ 新規</button>
-        </div>
-        <div style={{
-          maxHeight: 200, overflow: 'auto', borderRadius: 8,
-          border: `1px solid ${colors.border}`,
-        }}>
-          {filteredRegs.length === 0 ? (
-            <p style={{ padding: 12, fontSize: 12, color: colors.textDim, textAlign: 'center' }}>
-              規定が見つかりません。「+ 新規」で追加してください
-            </p>
-          ) : (
-            filteredRegs.map(reg => (
-              <div
-                key={reg.id}
-                onClick={() => setSelectedRegId(reg.id)}
-                style={{
-                  padding: '10px 12px', cursor: 'pointer',
-                  background: selectedRegId === reg.id ? 'rgba(96,165,250,0.1)' : 'transparent',
-                  borderBottom: `1px solid ${colors.border}`,
-                  transition: 'background 0.1s',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {selectedRegId === reg.id && <span style={{ color: colors.accent }}>✓</span>}
-                  <span style={{
-                    fontSize: 10, fontWeight: 700, padding: '1px 5px', borderRadius: 3,
-                    background: 'rgba(6,182,212,0.15)', color: '#06b6d4',
-                  }}>{reg.category}</span>
-                  <span style={{ fontSize: 12, color: colors.white }}>{reg.referenceNumber}</span>
-                </div>
-                <p style={{ fontSize: 12, color: colors.textSub, marginTop: 2, paddingLeft: selectedRegId === reg.id ? 20 : 0 }}>
-                  {reg.title}
-                </p>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Note */}
-      <div style={s.formGroup}>
-        <label style={s.label}>メモ（任意）</label>
-        <textarea
-          style={s.textarea}
-          value={note}
-          onChange={e => setNote(e.target.value)}
-          placeholder="この紐付けに関するメモ..."
-          rows={3}
-        />
-      </div>
-
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button
-          style={{ ...s.btnPrimary, opacity: selectedRegId ? 1 : 0.5 }}
-          onClick={save}
-          disabled={!selectedRegId}
-        >紐付けを保存</button>
-        <button style={s.btnSecondary} onClick={onClose}>キャンセル</button>
-      </div>
-    </Modal>
+    </>
   );
 }

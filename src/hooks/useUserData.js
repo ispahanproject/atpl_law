@@ -139,6 +139,29 @@ export function useUserData() {
     return counts;
   }, [userData.notes]);
 
+  // Derived: linked regulations per article (for list view badges)
+  const linkedRegsByArticle = useMemo(() => {
+    const result = {};
+    for (const link of Object.values(userData.links)) {
+      if (!result[link.sourceArticleId]) result[link.sourceArticleId] = [];
+      const reg = userData.regulations[link.targetRegulationId];
+      if (reg && !result[link.sourceArticleId].some(r => r.id === reg.id)) {
+        result[link.sourceArticleId].push(reg);
+      }
+    }
+    return result;
+  }, [userData.links, userData.regulations]);
+
+  // Derived: links grouped by regulation (for relationship view)
+  const linksByRegulation = useMemo(() => {
+    const result = {};
+    for (const link of Object.values(userData.links)) {
+      if (!result[link.targetRegulationId]) result[link.targetRegulationId] = [];
+      result[link.targetRegulationId].push(link);
+    }
+    return result;
+  }, [userData.links]);
+
   // Import
   const setFullUserData = useCallback((data) => {
     setUserData(data);
@@ -151,6 +174,7 @@ export function useUserData() {
     addNote, updateNote, deleteNote,
     getLinksForArticle, getLinksForRegulation, getNotesForArticle,
     linkCountByArticle, noteCountByArticle,
+    linkedRegsByArticle, linksByRegulation,
     setFullUserData,
   };
 }
